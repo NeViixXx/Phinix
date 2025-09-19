@@ -502,6 +502,128 @@ function getDefaultContent(type) {
         { title: "Customizable", description: "Tailor to your needs" },
       ]
     };
+    case "productcard": return {
+      title: "Product Name",
+      price: "$99.99",
+      image: "https://via.placeholder.com/300x200",
+      description: "Amazing product description that highlights key features and benefits.",
+      buttonText: "Add to Cart",
+      buttonHref: "#",
+      // Card styling
+      cardBg: "#ffffff",
+      cardRadius: "12px",
+      cardShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      // Content styling
+      titleColor: "#111827",
+      titleSize: "20px",
+      priceColor: "#059669",
+      priceSize: "24px",
+      descriptionColor: "#6B7280",
+      descriptionSize: "14px",
+      // Button styling
+      buttonBg: "#3B82F6",
+      buttonColor: "#ffffff",
+      buttonRadius: "8px",
+    };
+    case "teamcard": return {
+      name: "John Doe",
+      role: "CEO & Founder",
+      image: "https://via.placeholder.com/200x200",
+      bio: "Experienced leader with 10+ years in the industry.",
+      social: [
+        { platform: "LinkedIn", href: "#" },
+        { platform: "Twitter", href: "#" },
+      ],
+      // Card styling
+      cardBg: "#ffffff",
+      cardRadius: "12px",
+      cardShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      // Content styling
+      nameColor: "#111827",
+      nameSize: "18px",
+      roleColor: "#6B7280",
+      roleSize: "14px",
+      bioColor: "#4B5563",
+      bioSize: "14px",
+      // Social styling
+      socialColor: "#6B7280",
+      socialHover: "#3B82F6",
+    };
+    case "servicecard": return {
+      title: "Service Name",
+      description: "Comprehensive service description that explains what we offer and how it benefits customers.",
+      icon: "⚙️",
+      features: ["Feature 1", "Feature 2", "Feature 3"],
+      buttonText: "Learn More",
+      buttonHref: "#",
+      // Card styling
+      cardBg: "#ffffff",
+      cardRadius: "12px",
+      cardShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      // Content styling
+      titleColor: "#111827",
+      titleSize: "20px",
+      descriptionColor: "#6B7280",
+      descriptionSize: "14px",
+      iconSize: "48px",
+      // Button styling
+      buttonBg: "#3B82F6",
+      buttonColor: "#ffffff",
+      buttonRadius: "8px",
+    };
+    case "testimonialcard": return {
+      quote: "This service exceeded our expectations and delivered outstanding results.",
+      author: "Jane Smith",
+      role: "Marketing Director",
+      company: "Acme Corp",
+      image: "https://via.placeholder.com/80x80",
+      rating: 5,
+      // Card styling
+      cardBg: "#ffffff",
+      cardRadius: "12px",
+      cardShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      // Content styling
+      quoteColor: "#111827",
+      quoteSize: "16px",
+      authorColor: "#111827",
+      authorSize: "16px",
+      roleColor: "#6B7280",
+      roleSize: "14px",
+      // Rating styling
+      ratingColor: "#F59E0B",
+    };
+    case "featurecard": return {
+      title: "Feature Title",
+      description: "Brief description of this amazing feature and its benefits.",
+      icon: "✨",
+      buttonText: "Learn More",
+      buttonHref: "#",
+      // Card styling
+      cardBg: "#ffffff",
+      cardRadius: "12px",
+      cardShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      // Content styling
+      titleColor: "#111827",
+      titleSize: "18px",
+      descriptionColor: "#6B7280",
+      descriptionSize: "14px",
+      iconSize: "40px",
+      // Button styling
+      buttonBg: "#3B82F6",
+      buttonColor: "#ffffff",
+      buttonRadius: "8px",
+    };
+    case "quote": return {
+      text: "This is an inspiring quote that motivates and engages your audience.",
+      author: "Famous Person",
+      // Styling
+      textColor: "#111827",
+      textSize: "20px",
+      authorColor: "#6B7280",
+      authorSize: "16px",
+      background: "#F9FAFB",
+      borderLeft: "4px solid #3B82F6",
+    };
     default: return "";
   }
 }

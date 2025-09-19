@@ -44,48 +44,38 @@ export default function Sidebar() {
     }));
   };
 
-  // ✅ More realistic CMS block categories
+  // ✅ Curated CMS block categories with focus on cards and essential elements
   const groupedBlocks = {
     "Text & Content": [
       { id: "heading", label: "Heading", icon: "🔠" },
       { id: "paragraph", label: "Paragraph", icon: "✏️" },
-      { id: "list", label: "List", icon: "📋" },
       { id: "quote", label: "Quote", icon: "❝" },
-      { id: "divider", label: "Divider", icon: "➖" },
     ],
-    Media: [
+    "Cards & Layout": [
+      { id: "card", label: "Card", icon: "🃏" },
+      { id: "productcard", label: "Product Card", icon: "🛍️" },
+      { id: "teamcard", label: "Team Card", icon: "👥" },
+      { id: "servicecard", label: "Service Card", icon: "⚙️" },
+      { id: "testimonialcard", label: "Testimonial Card", icon: "💬" },
+      { id: "featurecard", label: "Feature Card", icon: "✨" },
+      { id: "grid", label: "Grid Layout", icon: "#️⃣" },
+      { id: "section", label: "Section", icon: "📄" },
+    ],
+    "Media & Interactive": [
       { id: "image", label: "Image", icon: "🖼️" },
       { id: "video", label: "Video", icon: "📹" },
       { id: "gallery", label: "Gallery", icon: "🖼️" },
-    ],
-    Forms: [
-      { id: "textinput", label: "Text Input", icon: "🔤" },
-      { id: "emailinput", label: "Email Input", icon: "📧" },
-      { id: "checkbox", label: "Checkbox", icon: "☑️" },
-      { id: "radio", label: "Radio", icon: "🔘" },
       { id: "button", label: "Button", icon: "➡️" },
     ],
-    Layout: [
-      { id: "section", label: "Section", icon: "📄" },
-      { id: "container", label: "Container", icon: "📦" },
-      { id: "grid", label: "Grid", icon: "#️⃣" },
-      { id: "spacer", label: "Spacer", icon: "⬜" },
+    "Navigation & Structure": [
       { id: "navbar", label: "Navbar", icon: "🧭" },
       { id: "footer", label: "Footer", icon: "🦶" },
-    ],
-    Marketing: [
       { id: "hero", label: "Hero Banner", icon: "🎯" },
-      { id: "features", label: "Feature List", icon: "✅" },
+    ],
+    "Marketing & Business": [
       { id: "pricing", label: "Pricing Table", icon: "💲" },
       { id: "testimonial", label: "Testimonial", icon: "💬" },
-      { id: "cta", label: "Call to Action", icon: "📢" },
-    ],
-    "Feedback & Interactivity": [
-      { id: "badge", label: "Badge", icon: "🏷️" },
-      { id: "progress", label: "Progress Bar", icon: "⏳" },
-      { id: "rating", label: "Rating", icon: "⭐" },
-      { id: "toast", label: "Toast", icon: "🔔" },
-      { id: "tooltip", label: "Tooltip", icon: "💬" },
+      { id: "featurelist", label: "Feature List", icon: "✅" },
     ],
   };
 

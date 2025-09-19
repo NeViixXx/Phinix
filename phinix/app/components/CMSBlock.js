@@ -264,6 +264,102 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
           ))}
         </div>
       )}
+      {liveBlock.type === "productcard" && (
+        <div className="w-full max-w-sm mx-auto" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+          {liveBlock.content?.image && (
+            <img src={liveBlock.content.image} alt="" className="w-full rounded-t-lg" style={{ height: '200px', objectFit: 'cover' }} />
+          )}
+          <div className="p-6">
+            <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
+            <div className="text-2xl font-bold mb-2" style={{ color: liveBlock.content?.priceColor, fontSize: liveBlock.content?.priceSize }}>{liveBlock.content?.price}</div>
+            <p className="mb-4" style={{ color: liveBlock.content?.descriptionColor, fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
+            {liveBlock.content?.buttonText && (
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition font-medium" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor, borderRadius: liveBlock.content?.buttonRadius }}>
+                {liveBlock.content.buttonText}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "teamcard" && (
+        <div className="w-full max-w-sm mx-auto text-center" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+          <div className="p-6">
+            {liveBlock.content?.image && (
+              <img src={liveBlock.content.image} alt="" className="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />
+            )}
+            <h3 className="font-semibold mb-1" style={{ color: liveBlock.content?.nameColor, fontSize: liveBlock.content?.nameSize }}>{liveBlock.content?.name}</h3>
+            <p className="mb-2" style={{ color: liveBlock.content?.roleColor, fontSize: liveBlock.content?.roleSize }}>{liveBlock.content?.role}</p>
+            <p className="mb-4" style={{ color: liveBlock.content?.bioColor, fontSize: liveBlock.content?.bioSize }}>{liveBlock.content?.bio}</p>
+            <div className="flex justify-center space-x-4">
+              {(liveBlock.content?.social || []).map((social, i) => (
+                <a key={i} href={social.href} className="transition" style={{ color: liveBlock.content?.socialColor }} onMouseEnter={(e) => e.currentTarget.style.color = liveBlock.content?.socialHover} onMouseLeave={(e) => e.currentTarget.style.color = liveBlock.content?.socialColor}>
+                  {social.platform}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "servicecard" && (
+        <div className="w-full max-w-sm mx-auto text-center" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+          <div className="p-6">
+            <div className="text-4xl mb-4" style={{ fontSize: liveBlock.content?.iconSize }}>{liveBlock.content?.icon}</div>
+            <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
+            <p className="mb-4" style={{ color: liveBlock.content?.descriptionColor, fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
+            <ul className="text-left mb-4 space-y-1">
+              {(liveBlock.content?.features || []).map((feature, i) => (
+                <li key={i} className="text-sm" style={{ color: liveBlock.content?.descriptionColor }}>• {feature}</li>
+              ))}
+            </ul>
+            {liveBlock.content?.buttonText && (
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition font-medium" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor, borderRadius: liveBlock.content?.buttonRadius }}>
+                {liveBlock.content.buttonText}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "testimonialcard" && (
+        <div className="w-full max-w-md mx-auto" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+          <div className="p-6">
+            <div className="flex items-center mb-4">
+              {liveBlock.content?.image && (
+                <img src={liveBlock.content.image} alt="" className="w-12 h-12 rounded-full mr-3 object-cover" />
+              )}
+              <div>
+                <div className="font-semibold" style={{ color: liveBlock.content?.authorColor, fontSize: liveBlock.content?.authorSize }}>{liveBlock.content?.author}</div>
+                <div className="text-sm" style={{ color: liveBlock.content?.roleColor, fontSize: liveBlock.content?.roleSize }}>{liveBlock.content?.role}, {liveBlock.content?.company}</div>
+              </div>
+            </div>
+            <div className="flex mb-3">
+              {[...Array(liveBlock.content?.rating || 5)].map((_, i) => (
+                <span key={i} style={{ color: liveBlock.content?.ratingColor }}>⭐</span>
+              ))}
+            </div>
+            <blockquote className="italic" style={{ color: liveBlock.content?.quoteColor, fontSize: liveBlock.content?.quoteSize }}>"{liveBlock.content?.quote}"</blockquote>
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "featurecard" && (
+        <div className="w-full max-w-sm mx-auto text-center" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+          <div className="p-6">
+            <div className="text-3xl mb-4" style={{ fontSize: liveBlock.content?.iconSize }}>{liveBlock.content?.icon}</div>
+            <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
+            <p className="mb-4" style={{ color: liveBlock.content?.descriptionColor, fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
+            {liveBlock.content?.buttonText && (
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition font-medium" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor, borderRadius: liveBlock.content?.buttonRadius }}>
+                {liveBlock.content.buttonText}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "quote" && (
+        <div className="w-full p-6 rounded" style={{ background: liveBlock.content?.background, borderLeft: liveBlock.content?.borderLeft }}>
+          <blockquote className="text-xl italic mb-2" style={{ color: liveBlock.content?.textColor, fontSize: liveBlock.content?.textSize }}>"{liveBlock.content?.text}"</blockquote>
+          <cite className="text-sm" style={{ color: liveBlock.content?.authorColor, fontSize: liveBlock.content?.authorSize }}>— {liveBlock.content?.author}</cite>
+        </div>
+      )}
  
       {/* Action Icons - Only show in edit mode */}
       {!previewMode && (
