@@ -1012,6 +1012,240 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
                 <TextInput value={liveBlock.content?.borderLeft || ''} onChange={e => updateNestedContent('borderLeft', e.target.value)} placeholder="Left border (e.g., 4px solid #3B82F6)" className={darkInputClass} />
               </div>
             )}
+            {block.type === "div" && (
+              <div className="space-y-2">
+                <TextInput value={liveBlock.content?.content || ''} onChange={e => updateNestedContent('content', e.target.value)} placeholder="Container content" className={darkInputClass} />
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Background Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.background || '#ffffff'} 
+                      onChange={color => updateNestedContent('background', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.background || '#ffffff'} 
+                      onChange={e => updateNestedContent('background', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput value={liveBlock.content?.border || ''} onChange={e => updateNestedContent('border', e.target.value)} placeholder="Border" className={darkInputClass} />
+                  <TextInput value={liveBlock.content?.borderRadius || ''} onChange={e => updateNestedContent('borderRadius', e.target.value)} placeholder="Border radius" className={darkInputClass} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput value={liveBlock.content?.padding || ''} onChange={e => updateNestedContent('padding', e.target.value)} placeholder="Padding" className={darkInputClass} />
+                  <TextInput value={liveBlock.content?.minHeight || ''} onChange={e => updateNestedContent('minHeight', e.target.value)} placeholder="Min height" className={darkInputClass} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Content Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.contentColor || '#6B7280'} 
+                      onChange={color => updateNestedContent('contentColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.contentColor || '#6B7280'} 
+                      onChange={e => updateNestedContent('contentColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <TextInput value={liveBlock.content?.contentSize || ''} onChange={e => updateNestedContent('contentSize', e.target.value)} placeholder="Content font size" className={darkInputClass} />
+              </div>
+            )}
+            {block.type === "twocolumn" && (
+              <div className="space-y-2">
+                <TextInput value={liveBlock.content?.leftContent || ''} onChange={e => updateNestedContent('leftContent', e.target.value)} placeholder="Left column content" className={darkInputClass} />
+                <TextInput value={liveBlock.content?.rightContent || ''} onChange={e => updateNestedContent('rightContent', e.target.value)} placeholder="Right column content" className={darkInputClass} />
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Background Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.background || '#ffffff'} 
+                      onChange={color => updateNestedContent('background', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.background || '#ffffff'} 
+                      onChange={e => updateNestedContent('background', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput value={liveBlock.content?.gap || ''} onChange={e => updateNestedContent('gap', e.target.value)} placeholder="Gap between columns" className={darkInputClass} />
+                  <TextInput value={liveBlock.content?.padding || ''} onChange={e => updateNestedContent('padding', e.target.value)} placeholder="Padding" className={darkInputClass} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Content Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.contentColor || '#6B7280'} 
+                      onChange={color => updateNestedContent('contentColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.contentColor || '#6B7280'} 
+                      onChange={e => updateNestedContent('contentColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <TextInput value={liveBlock.content?.contentSize || ''} onChange={e => updateNestedContent('contentSize', e.target.value)} placeholder="Content font size" className={darkInputClass} />
+              </div>
+            )}
+            {block.type === "threecolumn" && (
+              <div className="space-y-2">
+                <TextInput value={liveBlock.content?.leftContent || ''} onChange={e => updateNestedContent('leftContent', e.target.value)} placeholder="Left column content" className={darkInputClass} />
+                <TextInput value={liveBlock.content?.centerContent || ''} onChange={e => updateNestedContent('centerContent', e.target.value)} placeholder="Center column content" className={darkInputClass} />
+                <TextInput value={liveBlock.content?.rightContent || ''} onChange={e => updateNestedContent('rightContent', e.target.value)} placeholder="Right column content" className={darkInputClass} />
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Background Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.background || '#ffffff'} 
+                      onChange={color => updateNestedContent('background', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.background || '#ffffff'} 
+                      onChange={e => updateNestedContent('background', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput value={liveBlock.content?.gap || ''} onChange={e => updateNestedContent('gap', e.target.value)} placeholder="Gap between columns" className={darkInputClass} />
+                  <TextInput value={liveBlock.content?.padding || ''} onChange={e => updateNestedContent('padding', e.target.value)} placeholder="Padding" className={darkInputClass} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Content Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.contentColor || '#6B7280'} 
+                      onChange={color => updateNestedContent('contentColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.contentColor || '#6B7280'} 
+                      onChange={e => updateNestedContent('contentColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <TextInput value={liveBlock.content?.contentSize || ''} onChange={e => updateNestedContent('contentSize', e.target.value)} placeholder="Content font size" className={darkInputClass} />
+              </div>
+            )}
+            {block.type === "spacer" && (
+              <div className="space-y-2">
+                <TextInput value={liveBlock.content?.content || ''} onChange={e => updateNestedContent('content', e.target.value)} placeholder="Spacer label" className={darkInputClass} />
+                <TextInput value={liveBlock.content?.height || ''} onChange={e => updateNestedContent('height', e.target.value)} placeholder="Height (e.g., 40px)" className={darkInputClass} />
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Border Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.borderColor || '#d1d5db'} 
+                      onChange={color => updateNestedContent('borderColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.borderColor || '#d1d5db'} 
+                      onChange={e => updateNestedContent('borderColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Text Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.contentColor || '#9ca3af'} 
+                      onChange={color => updateNestedContent('contentColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.contentColor || '#9ca3af'} 
+                      onChange={e => updateNestedContent('contentColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <TextInput value={liveBlock.content?.contentSize || ''} onChange={e => updateNestedContent('contentSize', e.target.value)} placeholder="Text font size" className={darkInputClass} />
+              </div>
+            )}
+            {block.type === "mainnavbar" && (
+              <div className="space-y-2">
+                <TextInput value={liveBlock.content?.brand || ''} onChange={e => updateNestedContent('brand', e.target.value)} placeholder="Brand name" className={darkInputClass} />
+                <div className="text-xs text-gray-300">Navigation links (JSON format)</div>
+                <Textarea rows={4} value={JSON.stringify(liveBlock.content?.links || [], null, 2)} onChange={e => {
+                  try {
+                    const links = JSON.parse(e.target.value);
+                    updateNestedContent("links", links);
+                  } catch (err) {
+                    // Invalid JSON, don't update
+                  }
+                }} placeholder='[{"text": "Home", "href": "#"}]' className={darkInputClass} />
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput value={liveBlock.content?.ctaText || ''} onChange={e => updateNestedContent('ctaText', e.target.value)} placeholder="CTA button text" className={darkInputClass} />
+                  <TextInput value={liveBlock.content?.ctaHref || ''} onChange={e => updateNestedContent('ctaHref', e.target.value)} placeholder="CTA button link" className={darkInputClass} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Background Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.backgroundColor || '#ffffff'} 
+                      onChange={color => updateNestedContent('backgroundColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.backgroundColor || '#ffffff'} 
+                      onChange={e => updateNestedContent('backgroundColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Text Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.textColor || '#111827'} 
+                      onChange={color => updateNestedContent('textColor', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.textColor || '#111827'} 
+                      onChange={e => updateNestedContent('textColor', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-300">Link Hover Color</label>
+                  <div className="flex items-center gap-2">
+                    <HexColorPicker 
+                      color={liveBlock.content?.linkHover || '#3B82F6'} 
+                      onChange={color => updateNestedContent('linkHover', color)}
+                      style={{ width: '100%', height: '100px' }}
+                    />
+                    <TextInput 
+                      value={liveBlock.content?.linkHover || '#3B82F6'} 
+                      onChange={e => updateNestedContent('linkHover', e.target.value)} 
+                      className={`${darkInputClass} w-20`} 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <TextInput value={liveBlock.content?.height || '64px'} onChange={e => updateNestedContent('height', e.target.value)} placeholder="Height" className={darkInputClass} />
+                  <TextInput value={liveBlock.content?.paddingX || '16px'} onChange={e => updateNestedContent('paddingX', e.target.value)} placeholder="Padding X" className={darkInputClass} />
+                </div>
+                <div className="flex items-center gap-2 text-gray-300 text-sm">
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={!!liveBlock.content?.sticky} onChange={e => updateNestedContent('sticky', e.target.checked)} /> Sticky</label>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Card>

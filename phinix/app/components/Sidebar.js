@@ -61,6 +61,12 @@ export default function Sidebar() {
       { id: "grid", label: "Grid Layout", icon: "#️⃣" },
       { id: "section", label: "Section", icon: "📄" },
     ],
+    "Containers": [
+      { id: "div", label: "Div Container", icon: "📦" },
+      { id: "twocolumn", label: "2-Column Layout", icon: "📊" },
+      { id: "threecolumn", label: "3-Column Layout", icon: "📋" },
+      { id: "spacer", label: "Spacer", icon: "⬜" },
+    ],
     "Media & Interactive": [
       { id: "image", label: "Image", icon: "🖼️" },
       { id: "video", label: "Video", icon: "📹" },
@@ -68,7 +74,8 @@ export default function Sidebar() {
       { id: "button", label: "Button", icon: "➡️" },
     ],
     "Navigation & Structure": [
-      { id: "navbar", label: "Navbar", icon: "🧭" },
+      { id: "mainnavbar", label: "Main Navbar", icon: "🧭" },
+      { id: "navbar", label: "Custom Navbar", icon: "🧭" },
       { id: "footer", label: "Footer", icon: "🦶" },
       { id: "hero", label: "Hero Banner", icon: "🎯" },
     ],

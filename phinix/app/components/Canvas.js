@@ -27,19 +27,47 @@ function generateUUID() {
   return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
 }
 
-function DroppableCanvas({ children, hasInspector }) {
+function DroppableCanvas({ children, hasInspector, viewport }) {
   const { setNodeRef } = useDroppable({ id: "canvas" });
+  
+  const getViewportStyles = () => {
+    const baseStyles = {
+      paddingLeft: "300px",
+      paddingRight: hasInspector ? "360px" : "60px",
+      paddingTop: "180px", // Increased for enhanced toolbar
+      minHeight: "100vh",
+      position: "relative",
+      transition: "all 0.3s ease-in-out",
+    };
+
+    switch (viewport) {
+      case 'mobile':
+        return {
+          ...baseStyles,
+          maxWidth: "375px",
+          margin: "0 auto",
+          paddingLeft: "20px",
+          paddingRight: "20px",
+        };
+      case 'tablet':
+        return {
+          ...baseStyles,
+          maxWidth: "768px",
+          margin: "0 auto",
+          paddingLeft: "40px",
+          paddingRight: "40px",
+        };
+      case 'desktop':
+      default:
+        return baseStyles;
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
-      style={{
-        paddingLeft: "300px",
-        paddingRight: hasInspector ? "360px" : "60px",
-        paddingTop: "140px", // Increased for toolbar
-        minHeight: "100vh",
-        position: "relative",
-        transition: "padding-right 0.3s ease-in-out",
-      }}
+      style={getViewportStyles()}
+      className={`${viewport !== 'desktop' ? 'border border-gray-600 rounded-lg mx-auto my-4' : ''}`}
     >
       {children}
     </div>
@@ -55,6 +83,18 @@ export default function Canvas() {
   const [history, setHistory] = useState([[]]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState(false);
+  const [viewport, setViewport] = useState('desktop');
+  const [globalStyles, setGlobalStyles] = useState({
+    fontFamily: 'Inter, sans-serif',
+    primaryColor: '#3B82F6',
+    secondaryColor: '#6B7280',
+    backgroundColor: '#ffffff',
+    textColor: '#111827',
+    headingColor: '#111827',
+    linkColor: '#3B82F6',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  });
 
   // Initialize current page on mount
   useEffect(() => {
@@ -135,12 +175,71 @@ export default function Canvas() {
     const project = {
       pages,
       currentPageId,
+      globalStyles,
       timestamp: new Date().toISOString(),
       version: '1.0'
     };
     localStorage.setItem('phinix-cms-project', JSON.stringify(project));
     alert('Project saved successfully!');
-  }, [pages, currentPageId]);
+  }, [pages, currentPageId, globalStyles]);
+
+  // Preview functionality
+  const openPreview = useCallback(() => {
+    const currentPage = pages.find(p => p.id === currentPageId);
+    if (!currentPage) return;
+
+    const previewData = {
+      blocks: currentPage.blocks,
+      globalStyles,
+      viewport,
+      title: currentPage.name
+    };
+
+    const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+    previewWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${currentPage.name} - Preview</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+          body {
+            font-family: ${globalStyles.fontFamily};
+            background-color: ${globalStyles.backgroundColor};
+            color: ${globalStyles.textColor};
+            margin: 0;
+            padding: 20px;
+          }
+          .preview-container {
+            max-width: ${viewport === 'mobile' ? '375px' : viewport === 'tablet' ? '768px' : '100%'};
+            margin: 0 auto;
+            ${viewport !== 'desktop' ? 'border: 1px solid #e5e7eb; border-radius: 8px;' : ''}
+          }
+          h1, h2, h3, h4, h5, h6 { color: ${globalStyles.headingColor}; }
+          a { color: ${globalStyles.linkColor}; }
+          .btn { 
+            background-color: ${globalStyles.primaryColor}; 
+            border-radius: ${globalStyles.borderRadius};
+            box-shadow: ${globalStyles.boxShadow};
+          }
+        </style>
+      </head>
+      <body>
+        <div class="preview-container">
+          <div id="preview-content"></div>
+        </div>
+        <script>
+          const data = ${JSON.stringify(previewData)};
+          // Render blocks here - this would need the actual rendering logic
+          document.getElementById('preview-content').innerHTML = '<p>Preview content would be rendered here</p>';
+        </script>
+      </body>
+      </html>
+    `);
+    previewWindow.document.close();
+  }, [pages, currentPageId, globalStyles, viewport]);
 
   const loadProject = useCallback(() => {
     const saved = localStorage.getItem('phinix-cms-project');
@@ -155,6 +254,12 @@ export default function Canvas() {
         setSelectedBlockId(null);
         setHistory([JSON.parse(JSON.stringify(loadedPages))]);
         setHistoryIndex(0);
+        
+        // Load global styles if they exist
+        if (project.globalStyles) {
+          setGlobalStyles(project.globalStyles);
+        }
+        
         alert('Project loaded successfully!');
       } catch (error) {
         alert('Error loading project');
@@ -188,6 +293,25 @@ export default function Canvas() {
       };
 
       setBlocks((prev) => {
+        // Check if dropping into a container div
+        if (over && over.id !== "canvas") {
+          const targetBlock = prev.find(b => b.id === over.id);
+          if (targetBlock && ['div', 'twocolumn', 'threecolumn'].includes(targetBlock.type)) {
+            // Add to container's children
+            const updatedBlocks = prev.map(block => {
+              if (block.id === over.id) {
+                return {
+                  ...block,
+                  children: [...(block.children || []), newBlock]
+                };
+              }
+              return block;
+            });
+            return updatedBlocks;
+          }
+        }
+
+        // Normal drop behavior
         const newBlocks = !over || over.id === "canvas" 
           ? [...prev, newBlock]
           : (() => {
@@ -232,123 +356,232 @@ export default function Canvas() {
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <Sidebar />
       
-      {/* Toolbar */}
-      <div className="fixed top-0 left-64 right-0 z-30 bg-gray-900 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      {/* Enhanced CMS Navigation Bar */}
+      <div className="fixed top-0 left-64 right-0 z-30 bg-gray-900 border-b border-gray-700 px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Left Section - Logo & Main Actions */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">P</span>
+              </div>
+              <span className="text-white font-semibold text-lg">Phinix CMS</span>
+            </div>
+            
+            <div className="w-px h-8 bg-gray-600"></div>
+            
+            {/* Save & Load */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={saveProject}
+                className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <span>💾</span>
+                Save
+              </button>
+              <button
+                onClick={loadProject}
+                className="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <span>📁</span>
+                Load
+              </button>
+            </div>
+
+            <div className="w-px h-8 bg-gray-600"></div>
+
+            {/* Templates */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const templates = [
+                    { name: "Landing Page", blocks: [
+                      { id: generateUUID(), type: "hero", content: { title: "Welcome to Our Site", subtitle: "Build amazing experiences", buttonText: "Get Started" }},
+                      { id: generateUUID(), type: "featurelist", content: { title: "Features", features: [
+                        { title: "Fast", description: "Lightning fast performance" },
+                        { title: "Secure", description: "Enterprise grade security" }
+                      ]}}
+                    ]},
+                    { name: "About Page", blocks: [
+                      { id: generateUUID(), type: "heading", content: "About Us" },
+                      { id: generateUUID(), type: "paragraph", content: "Learn more about our company and mission." }
+                    ]},
+                    { name: "Contact Page", blocks: [
+                      { id: generateUUID(), type: "heading", content: "Contact Us" },
+                      { id: generateUUID(), type: "paragraph", content: "Get in touch with our team." }
+                    ]}
+                  ];
+                  
+                  const template = templates[Math.floor(Math.random() * templates.length)];
+                  const newPage = { id: generateUUID(), name: template.name, blocks: template.blocks };
+                  const newPages = [...pages, newPage];
+                  setPages(newPages);
+                  setCurrentPageId(newPage.id);
+                  setBlocks(newPage.blocks);
+                  saveToHistory(newPages);
+                  alert(`Created "${template.name}" template!`);
+                }}
+                className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <span>📄</span>
+                Templates
+              </button>
+            </div>
+          </div>
+
+          {/* Center Section - Page Management */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-300">Page:</span>
+              <select
+                value={currentPageId || ''}
+                onChange={(e) => {
+                  const pid = e.target.value;
+                  setCurrentPageId(pid);
+                  const page = pages.find(p=>p.id===pid);
+                  setBlocks(page?.blocks || []);
+                  setSelectedBlockId(null);
+                }}
+                className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-2 min-w-[120px]"
+              >
+                {pages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+            
+            <button
+              onClick={() => {
+                const name = prompt('Page name', `Page ${pages.length+1}`);
+                if (!name) return;
+                const newPage = { id: generateUUID(), name, blocks: [] };
+                const newPages = [...pages, newPage];
+                setPages(newPages);
+                setCurrentPageId(newPage.id);
+                setBlocks([]);
+                saveToHistory(newPages);
+              }}
+              className="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <span>➕</span>
+              Add Page
+            </button>
+          </div>
+
+          {/* Right Section - View Controls */}
+          <div className="flex items-center gap-3">
+            {/* Responsive View */}
+            <div className="flex items-center gap-1 bg-gray-800 rounded-lg p-1">
+              <button
+                onClick={() => setViewport('mobile')}
+                className={`px-3 py-1 text-xs rounded ${viewport === 'mobile' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'} transition-colors`}
+              >
+                📱
+              </button>
+              <button
+                onClick={() => setViewport('tablet')}
+                className={`px-3 py-1 text-xs rounded ${viewport === 'tablet' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'} transition-colors`}
+              >
+                📱
+              </button>
+              <button
+                onClick={() => setViewport('desktop')}
+                className={`px-3 py-1 text-xs rounded ${viewport === 'desktop' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'} transition-colors`}
+              >
+                💻
+              </button>
+            </div>
+
+            <div className="w-px h-8 bg-gray-600"></div>
+
+            {/* Preview & Edit */}
+            <button
+              onClick={openPreview}
+              className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <span>👁️</span>
+              Preview
+            </button>
+            
+            <button
+              onClick={() => setPreviewMode(!previewMode)}
+              className={`px-4 py-2 text-sm rounded-lg flex items-center gap-2 transition-colors ${
+                previewMode 
+                  ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                  : 'bg-gray-700 hover:bg-gray-600 text-white'
+              }`}
+            >
+              <span>✏️</span>
+              {previewMode ? 'Edit Mode' : 'Design Mode'}
+            </button>
+
+            {/* Block Count */}
+            <div className="px-3 py-2 bg-gray-800 rounded-lg">
+              <span className="text-xs text-gray-400">
+                {blocks.length} blocks
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Secondary Toolbar */}
+        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-700">
           <button
             onClick={undo}
             disabled={historyIndex <= 0}
-            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded"
+            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1 transition-colors"
           >
-            ↶ Undo
+            <span>↶</span>
+            Undo
           </button>
           <button
             onClick={redo}
             disabled={historyIndex >= history.length - 1}
-            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded"
+            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1 transition-colors"
           >
-            ↷ Redo
+            <span>↷</span>
+            Redo
           </button>
+          
           <div className="w-px h-6 bg-gray-600 mx-2"></div>
-          <button
-            onClick={saveProject}
-            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded"
-          >
-            💾 Save
-          </button>
-          <button
-            onClick={loadProject}
-            className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded"
-          >
-            📁 Load
-          </button>
+          
           <button
             onClick={() => {
               const payload = JSON.stringify({ blocks }, null, 2);
               navigator.clipboard.writeText(payload);
               alert('Copied JSON to clipboard');
             }}
-            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded"
+            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg flex items-center gap-1 transition-colors"
           >
-            ⧉ Copy JSON
+            <span>⧉</span>
+            Export
           </button>
+          
           <div className="w-px h-6 bg-gray-600 mx-2"></div>
-          {/* Page Switcher */}
-          <select
-            value={currentPageId || ''}
-            onChange={(e) => {
-              const pid = e.target.value;
-              setCurrentPageId(pid);
-              const page = pages.find(p=>p.id===pid);
-              setBlocks(page?.blocks || []);
-              setSelectedBlockId(null);
-            }}
-            className="bg-gray-800 border border-gray-700 text-white text-sm rounded px-2 py-1"
-          >
-            {pages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          
           <button
             onClick={() => {
-              const name = prompt('Page name', `Page ${pages.length+1}`);
-              if (!name) return;
-              const newPage = { id: generateUUID(), name, blocks: [] };
-              const newPages = [...pages, newPage];
-              setPages(newPages);
-              setCurrentPageId(newPage.id);
-              setBlocks([]);
-              saveToHistory(newPages);
+              const newStyles = {
+                fontFamily: prompt('Font Family', globalStyles.fontFamily) || globalStyles.fontFamily,
+                primaryColor: prompt('Primary Color', globalStyles.primaryColor) || globalStyles.primaryColor,
+                secondaryColor: prompt('Secondary Color', globalStyles.secondaryColor) || globalStyles.secondaryColor,
+                backgroundColor: prompt('Background Color', globalStyles.backgroundColor) || globalStyles.backgroundColor,
+                textColor: prompt('Text Color', globalStyles.textColor) || globalStyles.textColor,
+                headingColor: prompt('Heading Color', globalStyles.headingColor) || globalStyles.headingColor,
+                linkColor: prompt('Link Color', globalStyles.linkColor) || globalStyles.linkColor,
+                borderRadius: prompt('Border Radius', globalStyles.borderRadius) || globalStyles.borderRadius,
+                boxShadow: prompt('Box Shadow', globalStyles.boxShadow) || globalStyles.boxShadow,
+              };
+              setGlobalStyles(newStyles);
+              alert('Global styles updated!');
             }}
-            className="px-2 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded"
+            className="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-1 transition-colors"
           >
-            ＋ Add Page
+            <span>🎨</span>
+            Global Styles
           </button>
-          <button
-            onClick={() => {
-              const page = pages.find(p=>p.id===currentPageId);
-              if (!page) return;
-              const name = prompt('Rename page', page.name);
-              if (!name) return;
-              const newPages = pages.map(p => p.id===currentPageId ? { ...p, name } : p);
-              setPages(newPages);
-              saveToHistory(newPages);
-            }}
-            className="px-2 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded"
-          >
-            ✎ Rename
-          </button>
-          <button
-            onClick={() => {
-              if (pages.length <= 1) return alert('At least one page is required');
-              if (!confirm('Delete this page?')) return;
-              const idx = pages.findIndex(p=>p.id===currentPageId);
-              const newPages = pages.filter(p=>p.id!==currentPageId);
-              const fallback = newPages[Math.max(0, idx-1)] || newPages[0];
-              setPages(newPages);
-              setCurrentPageId(fallback.id);
-              setBlocks(fallback.blocks || []);
-              setSelectedBlockId(null);
-              saveToHistory(newPages);
-            }}
-            className="px-2 py-1 text-sm bg-red-700 hover:bg-red-600 text-white rounded"
-          >
-            🗑️ Delete
-          </button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPreviewMode(!previewMode)}
-            className={`px-3 py-1 text-sm rounded ${previewMode ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-700 hover:bg-gray-600'} text-white`}
-          >
-            {previewMode ? '✏️ Edit' : '👁️ Preview'}
-          </button>
-          <span className="text-xs text-gray-400">
-            {blocks.length} blocks
-          </span>
         </div>
       </div>
 
-      <DroppableCanvas hasInspector={!!selectedBlock && !previewMode}>
+      <DroppableCanvas hasInspector={!!selectedBlock && !previewMode} viewport={viewport}>
         {blocks.length === 0 && <p className="text-gray-500 text-center py-8">Drop blocks here to start building</p>}
 
         <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
@@ -623,6 +856,81 @@ function getDefaultContent(type) {
       authorSize: "16px",
       background: "#F9FAFB",
       borderLeft: "4px solid #3B82F6",
+    };
+    case "div": return {
+      // Container styling
+      background: "#ffffff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      padding: "16px",
+      minHeight: "100px",
+      // Content
+      content: "Drop elements here to group them together",
+      contentColor: "#6B7280",
+      contentSize: "14px",
+    };
+    case "twocolumn": return {
+      // Layout styling
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "16px",
+      background: "#ffffff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      padding: "16px",
+      minHeight: "100px",
+      // Content
+      leftContent: "Left column content",
+      rightContent: "Right column content",
+      contentColor: "#6B7280",
+      contentSize: "14px",
+    };
+    case "threecolumn": return {
+      // Layout styling
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: "16px",
+      background: "#ffffff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      padding: "16px",
+      minHeight: "100px",
+      // Content
+      leftContent: "Left column",
+      centerContent: "Center column",
+      rightContent: "Right column",
+      contentColor: "#6B7280",
+      contentSize: "14px",
+    };
+    case "spacer": return {
+      // Spacer styling
+      height: "40px",
+      background: "transparent",
+      border: "2px dashed #d1d5db",
+      borderRadius: "4px",
+      // Content
+      content: "Spacer",
+      contentColor: "#9ca3af",
+      contentSize: "12px",
+    };
+    case "mainnavbar": return {
+      // Main navbar content
+      brand: "Phinix",
+      links: [
+        { text: "Home", href: "#" },
+        { text: "About", href: "#" },
+        { text: "Services", href: "#" },
+        { text: "Contact", href: "#" }
+      ],
+      ctaText: "Get Started",
+      ctaHref: "#",
+      // Styling
+      backgroundColor: "#ffffff",
+      textColor: "#111827",
+      linkHover: "#3B82F6",
+      sticky: true,
+      height: "64px",
+      paddingX: "16px",
     };
     default: return "";
   }

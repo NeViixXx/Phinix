@@ -30,7 +30,7 @@ export default function AdminDashboard() {
   return (
    <>
    <div className="antialiased bg-gray-50 dark:bg-gray-900 ">
-   <Navbar />
+   
  <Canvas />
 </div>
 

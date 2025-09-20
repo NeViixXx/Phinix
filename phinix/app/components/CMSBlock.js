@@ -4,6 +4,25 @@ import { useState, useEffect } from "react";
 import { FaEdit, FaClone, FaTrash } from "react-icons/fa";
 import { FaGripVertical } from "react-icons/fa6";
 
+// Safe UUID generator for environments without crypto.randomUUID
+function generateUUID() {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+      bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 10
+      const toHex = (n) => n.toString(16).padStart(2, '0');
+      const hex = Array.from(bytes, toHex).join('');
+      return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}`;
+    }
+  } catch (_) {}
+  const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
+}
+
 
 export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSelect, isSelected, dragHandleProps, previewMode = false }) {
   const [mounted, setMounted] = useState(false);
@@ -359,6 +378,217 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
           <blockquote className="text-xl italic mb-2" style={{ color: liveBlock.content?.textColor, fontSize: liveBlock.content?.textSize }}>"{liveBlock.content?.text}"</blockquote>
           <cite className="text-sm" style={{ color: liveBlock.content?.authorColor, fontSize: liveBlock.content?.authorSize }}>— {liveBlock.content?.author}</cite>
         </div>
+      )}
+      {liveBlock.type === "div" && (
+        <div 
+          className="w-full rounded border-2 border-dashed border-gray-300 p-4 min-h-[100px]"
+          style={{ 
+            background: liveBlock.content?.background,
+            border: liveBlock.content?.border,
+            borderRadius: liveBlock.content?.borderRadius,
+            padding: liveBlock.content?.padding,
+            minHeight: liveBlock.content?.minHeight,
+          }}
+        >
+          {liveBlock.children && liveBlock.children.length > 0 ? (
+            <div className="space-y-2">
+              {liveBlock.children.map((childBlock) => (
+                <CMSBlock
+                  key={childBlock.id}
+                  block={childBlock}
+                  onUpdate={(updated) => {
+                    // Update child block in parent
+                    const updatedChildren = liveBlock.children.map(child => 
+                      child.id === childBlock.id ? updated : child
+                    );
+                    onUpdate({ ...liveBlock, children: updatedChildren });
+                  }}
+                  onDelete={(id) => {
+                    const updatedChildren = liveBlock.children.filter(child => child.id !== id);
+                    onUpdate({ ...liveBlock, children: updatedChildren });
+                  }}
+                  onDuplicate={(id) => {
+                    const childToDuplicate = liveBlock.children.find(child => child.id === id);
+                    if (childToDuplicate) {
+                      const duplicated = { ...childToDuplicate, id: generateUUID() };
+                      onUpdate({ ...liveBlock, children: [...liveBlock.children, duplicated] });
+                    }
+                  }}
+                  onSelect={onSelect}
+                  isSelected={isSelected}
+                  dragHandleProps={dragHandleProps}
+                  previewMode={previewMode}
+                />
+              ))}
+            </div>
+          ) : (
+            <p 
+              className="text-center text-gray-500"
+              style={{ 
+                color: liveBlock.content?.contentColor,
+                fontSize: liveBlock.content?.contentSize,
+              }}
+            >
+              {liveBlock.content?.content}
+            </p>
+          )}
+        </div>
+      )}
+      {liveBlock.type === "twocolumn" && (
+        <div 
+          className="w-full rounded border-2 border-dashed border-gray-300 p-4"
+          style={{ 
+            display: liveBlock.content?.display,
+            gridTemplateColumns: liveBlock.content?.gridTemplateColumns,
+            gap: liveBlock.content?.gap,
+            background: liveBlock.content?.background,
+            border: liveBlock.content?.border,
+            borderRadius: liveBlock.content?.borderRadius,
+            padding: liveBlock.content?.padding,
+            minHeight: liveBlock.content?.minHeight,
+          }}
+        >
+          <div className="p-4 border border-gray-200 rounded bg-gray-50">
+            <p 
+              className="text-center text-gray-500"
+              style={{ 
+                color: liveBlock.content?.contentColor,
+                fontSize: liveBlock.content?.contentSize,
+              }}
+            >
+              {liveBlock.content?.leftContent}
+            </p>
+          </div>
+          <div className="p-4 border border-gray-200 rounded bg-gray-50">
+            <p 
+              className="text-center text-gray-500"
+              style={{ 
+                color: liveBlock.content?.contentColor,
+                fontSize: liveBlock.content?.contentSize,
+              }}
+            >
+              {liveBlock.content?.rightContent}
+            </p>
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "threecolumn" && (
+        <div 
+          className="w-full rounded border-2 border-dashed border-gray-300 p-4"
+          style={{ 
+            display: liveBlock.content?.display,
+            gridTemplateColumns: liveBlock.content?.gridTemplateColumns,
+            gap: liveBlock.content?.gap,
+            background: liveBlock.content?.background,
+            border: liveBlock.content?.border,
+            borderRadius: liveBlock.content?.borderRadius,
+            padding: liveBlock.content?.padding,
+            minHeight: liveBlock.content?.minHeight,
+          }}
+        >
+          <div className="p-4 border border-gray-200 rounded bg-gray-50">
+            <p 
+              className="text-center text-gray-500"
+              style={{ 
+                color: liveBlock.content?.contentColor,
+                fontSize: liveBlock.content?.contentSize,
+              }}
+            >
+              {liveBlock.content?.leftContent}
+            </p>
+          </div>
+          <div className="p-4 border border-gray-200 rounded bg-gray-50">
+            <p 
+              className="text-center text-gray-500"
+              style={{ 
+                color: liveBlock.content?.contentColor,
+                fontSize: liveBlock.content?.contentSize,
+              }}
+            >
+              {liveBlock.content?.centerContent}
+            </p>
+          </div>
+          <div className="p-4 border border-gray-200 rounded bg-gray-50">
+            <p 
+              className="text-center text-gray-500"
+              style={{ 
+                color: liveBlock.content?.contentColor,
+                fontSize: liveBlock.content?.contentSize,
+              }}
+            >
+              {liveBlock.content?.rightContent}
+            </p>
+          </div>
+        </div>
+      )}
+      {liveBlock.type === "spacer" && (
+        <div 
+          className="w-full rounded border-2 border-dashed border-gray-300 flex items-center justify-center"
+          style={{ 
+            height: liveBlock.content?.height,
+            background: liveBlock.content?.background,
+            border: liveBlock.content?.border,
+            borderRadius: liveBlock.content?.borderRadius,
+          }}
+        >
+          <span 
+            className="text-gray-400 text-xs"
+            style={{ 
+              color: liveBlock.content?.contentColor,
+              fontSize: liveBlock.content?.contentSize,
+            }}
+          >
+            {liveBlock.content?.content}
+          </span>
+        </div>
+      )}
+      {liveBlock.type === "mainnavbar" && (
+        <nav 
+          className="w-full bg-white shadow-lg border-b border-gray-200"
+          style={{ 
+            position: liveBlock.content?.sticky ? 'sticky' : 'relative',
+            top: 0,
+            backgroundColor: liveBlock.content?.backgroundColor,
+            height: liveBlock.content?.height,
+          }}
+        >
+          <div className="max-w-7xl mx-auto" style={{ paddingLeft: liveBlock.content?.paddingX, paddingRight: liveBlock.content?.paddingX }}>
+            <div className="flex justify-between items-center h-full">
+              <div className="flex-shrink-0 flex items-center">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                  P
+                </div>
+                <span className="ml-2 text-xl font-bold" style={{ color: liveBlock.content?.textColor }}>
+                  {liveBlock.content?.brand || "Brand"}
+                </span>
+              </div>
+              <div className="hidden md:block">
+                <div className="ml-10 flex items-baseline space-x-4">
+                  {liveBlock.content?.links?.map((link, index) => (
+                    <a 
+                      key={index} 
+                      href={link.href} 
+                      className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-100"
+                      style={{ color: liveBlock.content?.textColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = liveBlock.content?.linkHover}
+                      onMouseLeave={(e) => e.currentTarget.style.color = liveBlock.content?.textColor}
+                    >
+                      {link.text}
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div className="hidden md:block">
+                <button
+                  className="px-4 py-2 rounded-md text-sm font-medium text-white transition-colors"
+                  style={{ backgroundColor: liveBlock.content?.linkHover }}
+                >
+                  {liveBlock.content?.ctaText || "Get Started"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
       )}
  
       {/* Action Icons - Only show in edit mode */}
