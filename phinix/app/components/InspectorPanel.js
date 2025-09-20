@@ -130,6 +130,7 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
                 <div className="space-y-2">
                   <label className="text-sm text-gray-300">Text Color</label>
                   <div className="flex items-center gap-2">
+                    
                     <HexColorPicker
                       color={liveBlock.content?.textColor || "#4B5563"} 
                       onChange={color => updateNestedContent("textColor", color)}
@@ -368,6 +369,7 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm text-gray-300">Text Color</label>
+                  
                   <div className="flex items-center gap-2">
                     <HexColorPicker 
                       color={liveBlock.content?.textColor || '#e5e7eb'} 
@@ -563,6 +565,7 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm text-gray-300">Button Text Color</label>
+                  
                   <div className="flex items-center gap-2">
                     <HexColorPicker 
                       color={liveBlock.content?.buttonColor || '#ffffff'} 
@@ -1018,9 +1021,10 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
         <Button onClick={() => toggleSection("textStyles")} size="sm" className="w-full flex justify-between hover:bg-gray-500 border-gray-500 text-white">{`Text Styles ${openSections.textStyles ? "▲" : "▼"}`}</Button>
         {openSections.textStyles && (
           <div className="mt-2 flex flex-wrap gap-2">
-            <div className="space-y-2">
+            <div className="w-100">
               <label className="text-sm text-gray-300">Text Color</label>
-              <div className="flex items-center gap-2">
+              
+              <div className="flex flex-col gap-2">
                 <HexColorPicker 
                   color={liveBlock.color || "#000000"} 
                   onChange={color => handleChange("color", color)}
@@ -1029,7 +1033,7 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
                 <TextInput 
                   value={liveBlock.color || "#000000"} 
                   onChange={e => handleChange("color", e.target.value)} 
-                  className={`${darkInputClass} w-20`} 
+                  className={`${darkInputClass} w-50`} 
                 />
               </div>
             </div>
@@ -1100,8 +1104,8 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
               <TextInput placeholder="Gap (e.g., 8px)" value={liveBlock.gap || ""} onChange={e => handleChange("gap", e.target.value)} className={darkInputClass} />
             </>}
             <div className="space-y-2">
-              <label className="text-sm text-gray-300">Background Color</label>
-              <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-300 pb-2">Background Color</label>
+              <div className="flex flex-col gap-2">
                 <HexColorPicker 
                   color={liveBlock.background || "#ffffff"} 
                   onChange={color => handleChange("background", color)}
@@ -1110,7 +1114,7 @@ export default function InspectorPanel({ block, onUpdate, onClose }) {
                 <TextInput 
                   value={liveBlock.background || "#ffffff"} 
                   onChange={e => handleChange("background", e.target.value)} 
-                  className={`${darkInputClass} w-20`} 
+                  className={`${darkInputClass} w-50`} 
                 />
               </div>
             </div>
