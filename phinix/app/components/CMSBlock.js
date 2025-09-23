@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FaEdit, FaClone, FaTrash } from "react-icons/fa";
 import { FaGripVertical } from "react-icons/fa6";
 
@@ -28,6 +28,10 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
   const [mounted, setMounted] = useState(false);
   const [liveBlock, setLiveBlock] = useState(block);
   const [viewport, setViewport] = useState('lg');
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState(null);
+  const blockRef = useRef(null);
+  const resizeStartRef = useRef({ x: 0, width: 0 });
 
   // Only render on client to avoid SSR mismatch
   useEffect(() => {
@@ -48,6 +52,49 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // Resize functionality
+  const handleResizeStart = useCallback((e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeDirection(direction);
+    
+    const rect = blockRef.current.getBoundingClientRect();
+    resizeStartRef.current = {
+      x: e.clientX,
+      width: rect.width
+    };
+  }, []);
+
+  const handleResizeMove = useCallback((e) => {
+    if (!isResizing || !resizeDirection) return;
+    
+    const deltaX = e.clientX - resizeStartRef.current.x;
+    const newWidth = resizeStartRef.current.width + (resizeDirection === 'right' ? deltaX : -deltaX);
+    
+    // Minimum width constraint
+    const minWidth = 100;
+    const constrainedWidth = Math.max(minWidth, newWidth);
+    
+    handleChange('width', `${constrainedWidth}px`);
+  }, [isResizing, resizeDirection]);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+    setResizeDirection(null);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [isResizing, handleResizeMove, handleResizeEnd]);
+
   if (!mounted) return null; // Prevent SSR hydration mismatch
 
   const handleChange = (field, value) => {
@@ -62,13 +109,14 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
 
   return (
     <div
+      ref={blockRef}
       className={`relative border rounded mb-4 w-full transition-all duration-300 ease-in-out ${
         previewMode 
           ? "" 
           : isSelected 
             ? "ring-2 ring-blue-500" 
             : "hover:ring-1 hover:ring-gray-300"
-      }`}
+      } ${isResizing ? 'select-none' : ''}`}
       style={{
         margin: bpStyle.margin ?? liveBlock.margin,
         padding: bpStyle.padding ?? liveBlock.padding,
@@ -95,7 +143,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         backdropFilter: liveBlock.backdropFilter,
         filter: liveBlock.filter,
         transform: liveBlock.transform,
-        transition: liveBlock.transition || "all 0.3s ease-in-out",
+        transition: isResizing ? 'none' : (liveBlock.transition || "all 0.3s ease-in-out"),
       }}
       onClick={previewMode ? undefined : (e) => { e.stopPropagation(); onSelect && onSelect(); }}
     >
@@ -381,7 +429,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
       )}
       {liveBlock.type === "div" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 p-4 min-h-[100px]"
+          className="w-full rounded border-2 border-dashed border-gray-300 p-4 min-h-[100px] relative group"
           style={{ 
             background: liveBlock.content?.background,
             border: liveBlock.content?.border,
@@ -390,6 +438,13 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
             minHeight: liveBlock.content?.minHeight,
           }}
         >
+          {/* Container Header */}
+          {!previewMode && (
+            <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-t">
+              Container Zone
+            </div>
+          )}
+          
           {liveBlock.children && liveBlock.children.length > 0 ? (
             <div className="space-y-2">
               {liveBlock.children.map((childBlock) => (
@@ -422,21 +477,23 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
               ))}
             </div>
           ) : (
-            <p 
-              className="text-center text-gray-500"
-              style={{ 
-                color: liveBlock.content?.contentColor,
-                fontSize: liveBlock.content?.contentSize,
-              }}
-            >
-              {liveBlock.content?.content}
-            </p>
+            <div className="flex items-center justify-center h-20 border-2 border-dashed border-gray-200 rounded bg-gray-50">
+              <p 
+                className="text-center text-gray-500"
+                style={{ 
+                  color: liveBlock.content?.contentColor,
+                  fontSize: liveBlock.content?.contentSize,
+                }}
+              >
+                {liveBlock.content?.content}
+              </p>
+            </div>
           )}
         </div>
       )}
       {liveBlock.type === "twocolumn" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 p-4"
+          className="w-full rounded border-2 border-dashed border-gray-300 p-4 relative group"
           style={{ 
             display: liveBlock.content?.display,
             gridTemplateColumns: liveBlock.content?.gridTemplateColumns,
@@ -448,33 +505,76 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
             minHeight: liveBlock.content?.minHeight,
           }}
         >
-          <div className="p-4 border border-gray-200 rounded bg-gray-50">
-            <p 
-              className="text-center text-gray-500"
-              style={{ 
-                color: liveBlock.content?.contentColor,
-                fontSize: liveBlock.content?.contentSize,
-              }}
-            >
-              {liveBlock.content?.leftContent}
-            </p>
-          </div>
-          <div className="p-4 border border-gray-200 rounded bg-gray-50">
-            <p 
-              className="text-center text-gray-500"
-              style={{ 
-                color: liveBlock.content?.contentColor,
-                fontSize: liveBlock.content?.contentSize,
-              }}
-            >
-              {liveBlock.content?.rightContent}
-            </p>
-          </div>
+          {/* Container Header */}
+          {!previewMode && (
+            <div className="absolute -top-6 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded-t">
+              Two Column Layout
+            </div>
+          )}
+          
+          {liveBlock.children && liveBlock.children.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4">
+              {liveBlock.children.map((childBlock, index) => (
+                <div key={childBlock.id} className="min-h-[100px] border border-gray-200 rounded bg-gray-50 p-2">
+                  <div className="text-xs text-gray-400 mb-2">Column {index + 1}</div>
+                  <CMSBlock
+                    block={childBlock}
+                    onUpdate={(updated) => {
+                      const updatedChildren = liveBlock.children.map(child => 
+                        child.id === childBlock.id ? updated : child
+                      );
+                      onUpdate({ ...liveBlock, children: updatedChildren });
+                    }}
+                    onDelete={(id) => {
+                      const updatedChildren = liveBlock.children.filter(child => child.id !== id);
+                      onUpdate({ ...liveBlock, children: updatedChildren });
+                    }}
+                    onDuplicate={(id) => {
+                      const childToDuplicate = liveBlock.children.find(child => child.id === id);
+                      if (childToDuplicate) {
+                        const duplicated = { ...childToDuplicate, id: generateUUID() };
+                        onUpdate({ ...liveBlock, children: [...liveBlock.children, duplicated] });
+                      }
+                    }}
+                    onSelect={onSelect}
+                    isSelected={isSelected}
+                    dragHandleProps={dragHandleProps}
+                    previewMode={previewMode}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
+                <p 
+                  className="text-center text-gray-500"
+                  style={{ 
+                    color: liveBlock.content?.contentColor,
+                    fontSize: liveBlock.content?.contentSize,
+                  }}
+                >
+                  {liveBlock.content?.leftContent}
+                </p>
+              </div>
+              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
+                <p 
+                  className="text-center text-gray-500"
+                  style={{ 
+                    color: liveBlock.content?.contentColor,
+                    fontSize: liveBlock.content?.contentSize,
+                  }}
+                >
+                  {liveBlock.content?.rightContent}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
       {liveBlock.type === "threecolumn" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 p-4"
+          className="w-full rounded border-2 border-dashed border-gray-300 p-4 relative group"
           style={{ 
             display: liveBlock.content?.display,
             gridTemplateColumns: liveBlock.content?.gridTemplateColumns,
@@ -486,39 +586,82 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
             minHeight: liveBlock.content?.minHeight,
           }}
         >
-          <div className="p-4 border border-gray-200 rounded bg-gray-50">
-            <p 
-              className="text-center text-gray-500"
-              style={{ 
-                color: liveBlock.content?.contentColor,
-                fontSize: liveBlock.content?.contentSize,
-              }}
-            >
-              {liveBlock.content?.leftContent}
-            </p>
-          </div>
-          <div className="p-4 border border-gray-200 rounded bg-gray-50">
-            <p 
-              className="text-center text-gray-500"
-              style={{ 
-                color: liveBlock.content?.contentColor,
-                fontSize: liveBlock.content?.contentSize,
-              }}
-            >
-              {liveBlock.content?.centerContent}
-            </p>
-          </div>
-          <div className="p-4 border border-gray-200 rounded bg-gray-50">
-            <p 
-              className="text-center text-gray-500"
-              style={{ 
-                color: liveBlock.content?.contentColor,
-                fontSize: liveBlock.content?.contentSize,
-              }}
-            >
-              {liveBlock.content?.rightContent}
-            </p>
-          </div>
+          {/* Container Header */}
+          {!previewMode && (
+            <div className="absolute -top-6 left-0 bg-purple-500 text-white text-xs px-2 py-1 rounded-t">
+              Three Column Layout
+            </div>
+          )}
+          
+          {liveBlock.children && liveBlock.children.length > 0 ? (
+            <div className="grid grid-cols-3 gap-4">
+              {liveBlock.children.map((childBlock, index) => (
+                <div key={childBlock.id} className="min-h-[100px] border border-gray-200 rounded bg-gray-50 p-2">
+                  <div className="text-xs text-gray-400 mb-2">Column {index + 1}</div>
+                  <CMSBlock
+                    block={childBlock}
+                    onUpdate={(updated) => {
+                      const updatedChildren = liveBlock.children.map(child => 
+                        child.id === childBlock.id ? updated : child
+                      );
+                      onUpdate({ ...liveBlock, children: updatedChildren });
+                    }}
+                    onDelete={(id) => {
+                      const updatedChildren = liveBlock.children.filter(child => child.id !== id);
+                      onUpdate({ ...liveBlock, children: updatedChildren });
+                    }}
+                    onDuplicate={(id) => {
+                      const childToDuplicate = liveBlock.children.find(child => child.id === id);
+                      if (childToDuplicate) {
+                        const duplicated = { ...childToDuplicate, id: generateUUID() };
+                        onUpdate({ ...liveBlock, children: [...liveBlock.children, duplicated] });
+                      }
+                    }}
+                    onSelect={onSelect}
+                    isSelected={isSelected}
+                    dragHandleProps={dragHandleProps}
+                    previewMode={previewMode}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
+                <p 
+                  className="text-center text-gray-500"
+                  style={{ 
+                    color: liveBlock.content?.contentColor,
+                    fontSize: liveBlock.content?.contentSize,
+                  }}
+                >
+                  {liveBlock.content?.leftContent}
+                </p>
+              </div>
+              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
+                <p 
+                  className="text-center text-gray-500"
+                  style={{ 
+                    color: liveBlock.content?.contentColor,
+                    fontSize: liveBlock.content?.contentSize,
+                  }}
+                >
+                  {liveBlock.content?.centerContent}
+                </p>
+              </div>
+              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
+                <p 
+                  className="text-center text-gray-500"
+                  style={{ 
+                    color: liveBlock.content?.contentColor,
+                    fontSize: liveBlock.content?.contentSize,
+                  }}
+                >
+                  {liveBlock.content?.rightContent}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
       {liveBlock.type === "spacer" && (
@@ -595,7 +738,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
       {!previewMode && (
         <div className="absolute top-1 right-1 flex gap-2">
           {/* Drag handle */}
- {dragHandleProps && <button
+          {dragHandleProps && <button
               {...dragHandleProps}
               className="p-1 text-gray-500 hover:text-gray-700 cursor-grab active:cursor-grabbing transition"
             >
@@ -611,6 +754,22 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
             <FaTrash size={16} />
           </button>
         </div>
+      )}
+
+      {/* Resize Handles - Only show in edit mode and when selected */}
+      {!previewMode && isSelected && (
+        <>
+          {/* Left resize handle */}
+          <div
+            className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 cursor-ew-resize opacity-0 hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleResizeStart(e, 'left')}
+          />
+          {/* Right resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 cursor-ew-resize opacity-0 hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleResizeStart(e, 'right')}
+          />
+        </>
       )}
     </div>
   );
