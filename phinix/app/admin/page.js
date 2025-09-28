@@ -3,7 +3,6 @@
 "use client"; // because drag-and-drop needs client-side interactivity
 
 import { useState } from "react";
-import Navbar from "../components/Navbar"; 
 import Canvas from "../components/Canvas";
 
 // Mock dashboard widgets

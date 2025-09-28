@@ -7,8 +7,7 @@ import Sidebar from "./Sidebar";
 import CMSBlock from "./CMSBlock";
 import SortableBlock from "./SortableBlock";
 import InspectorPanel from "./InspectorPanel";
-import Navbar from "./Navbar";
-import MainNavbar from "./MainNavbar";
+
 
 // Safe UUID generator for environments without crypto.randomUUID
 function generateUUID() {
