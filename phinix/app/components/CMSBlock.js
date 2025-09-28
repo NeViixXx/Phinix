@@ -108,46 +108,101 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
   const bpStyle = { ...(responsive.base || {}), ...(viewport === 'md' ? responsive.md || {} : {}), ...(viewport === 'lg' ? { ...(responsive.md || {}), ...(responsive.lg || {}) } : {}) };
 
   return (
-    <div
-      ref={blockRef}
-      className={`relative border rounded mb-4 w-full transition-all duration-300 ease-in-out ${
-        previewMode 
-          ? "" 
-          : isSelected 
-            ? "ring-2 ring-blue-500" 
-            : "hover:ring-1 hover:ring-gray-300"
-      } ${isResizing ? 'select-none' : ''}`}
-      style={{
-        margin: bpStyle.margin ?? liveBlock.margin,
-        padding: bpStyle.padding ?? liveBlock.padding,
-        width: bpStyle.width ?? (liveBlock.width || "100%"),
-        height: bpStyle.height ?? liveBlock.height,
-        display: bpStyle.display ?? (liveBlock.display || "block"),
-        justifyContent: bpStyle.justifyContent ?? liveBlock.justifyContent,
-        alignItems: bpStyle.alignItems ?? liveBlock.alignItems,
-        gap: bpStyle.gap ?? liveBlock.gap,
-        background: liveBlock.background,
-        border: liveBlock.border,
-        borderRadius: liveBlock.borderRadius,
-        boxShadow: liveBlock.boxShadow,
-        opacity: liveBlock.opacity,
-        overflow: liveBlock.overflow,
-        textAlign: bpStyle.textAlign ?? liveBlock.textAlign,
-        fontSize: bpStyle.fontSize ?? liveBlock.fontSize,
-        fontWeight: liveBlock.fontWeight,
-        fontStyle: liveBlock.fontStyle,
-        textDecoration: liveBlock.textDecoration,
-        letterSpacing: liveBlock.letterSpacing,
-        lineHeight: liveBlock.lineHeight,
-        color: liveBlock.color,
-        backdropFilter: liveBlock.backdropFilter,
-        filter: liveBlock.filter,
-        transform: liveBlock.transform,
-        transition: isResizing ? 'none' : (liveBlock.transition || "all 0.3s ease-in-out"),
-      }}
-      onClick={previewMode ? undefined : (e) => { e.stopPropagation(); onSelect && onSelect(); }}
-    >
-      
+    <div className="group relative">
+      {/* Modern Block Container */}
+      <div
+        ref={blockRef}
+        className={`relative w-full transition-all duration-300 ease-out transform ${
+          previewMode 
+            ? "bg-white/5 backdrop-blur-sm rounded-xl border border-gray-700/30" 
+            : isSelected 
+              ? "ring-2 ring-blue-500/50 ring-offset-2 ring-offset-slate-900 bg-white/10 backdrop-blur-sm rounded-xl border border-blue-500/30 shadow-2xl shadow-blue-500/10 scale-[1.02]" 
+              : "bg-white/5 backdrop-blur-sm rounded-xl border border-gray-700/30 hover:border-blue-500/20 hover:shadow-xl hover:shadow-blue-500/5 hover:bg-white/10"
+        } ${isResizing ? 'select-none' : ''}`}
+        style={{
+          margin: bpStyle.margin ?? liveBlock.margin,
+          padding: bpStyle.padding ?? liveBlock.padding,
+          width: bpStyle.width ?? (liveBlock.width || "100%"),
+          height: bpStyle.height ?? liveBlock.height,
+          display: bpStyle.display ?? (liveBlock.display || "block"),
+          justifyContent: bpStyle.justifyContent ?? liveBlock.justifyContent,
+          alignItems: bpStyle.alignItems ?? liveBlock.alignItems,
+          gap: bpStyle.gap ?? liveBlock.gap,
+          background: previewMode ? liveBlock.background : `linear-gradient(135deg, ${liveBlock.background || 'rgba(255,255,255,0.05)'}, ${liveBlock.background || 'rgba(255,255,255,0.02)'})`,
+          border: liveBlock.border,
+          borderRadius: liveBlock.borderRadius || '12px',
+          boxShadow: previewMode ? liveBlock.boxShadow : `${liveBlock.boxShadow || ''}, 0 8px 32px rgba(0,0,0,0.1)`,
+          opacity: liveBlock.opacity,
+          overflow: liveBlock.overflow,
+          textAlign: bpStyle.textAlign ?? liveBlock.textAlign,
+          fontSize: bpStyle.fontSize ?? liveBlock.fontSize,
+          fontWeight: liveBlock.fontWeight,
+          fontStyle: liveBlock.fontStyle,
+          textDecoration: liveBlock.textDecoration,
+          letterSpacing: liveBlock.letterSpacing,
+          lineHeight: liveBlock.lineHeight,
+          color: liveBlock.color,
+          backdropFilter: 'blur(12px) saturate(180%)',
+          filter: liveBlock.filter,
+          transform: liveBlock.transform,
+          transition: isResizing ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+        onClick={previewMode ? undefined : (e) => { e.stopPropagation(); onSelect && onSelect(); }}
+      >
+        
+        {/* Modern Block Controls */}
+        {!previewMode && (
+          <div className={`absolute -top-3 right-2 flex items-center space-x-1 transition-all duration-200 ${
+            isSelected ? 'opacity-100 scale-100' : 'opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100'
+          }`}>
+            {/* Drag Handle */}
+            <button
+              {...dragHandleProps}
+              className="w-8 h-8 bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg flex items-center justify-center text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-200 cursor-move shadow-lg hover:shadow-xl"
+              title="Drag to reorder"
+            >
+              <FaGripVertical className="w-3 h-3" />
+            </button>
+            
+            {/* Edit Button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); onSelect && onSelect(); }}
+              className="w-8 h-8 bg-blue-600/90 backdrop-blur-sm border border-blue-500/50 rounded-lg flex items-center justify-center text-white hover:bg-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+              title="Edit block"
+            >
+              <FaEdit className="w-3 h-3" />
+            </button>
+            
+            {/* Duplicate Button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); onDuplicate && onDuplicate(); }}
+              className="w-8 h-8 bg-green-600/90 backdrop-blur-sm border border-green-500/50 rounded-lg flex items-center justify-center text-white hover:bg-green-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+              title="Duplicate block"
+            >
+              <FaClone className="w-3 h-3" />
+            </button>
+            
+            {/* Delete Button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete && onDelete(); }}
+              className="w-8 h-8 bg-red-600/90 backdrop-blur-sm border border-red-500/50 rounded-lg flex items-center justify-center text-white hover:bg-red-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+              title="Delete block"
+            >
+              <FaTrash className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+
+        {/* Block Type Badge */}
+        {!previewMode && (
+          <div className={`absolute -top-3 left-2 transition-all duration-200 ${
+            isSelected ? 'opacity-100 scale-100' : 'opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100'
+          }`}>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-600/90 to-purple-600/90 text-white border border-blue-500/50 backdrop-blur-sm shadow-lg">
+              {liveBlock.type.charAt(0).toUpperCase() + liveBlock.type.slice(1)}
+            </span>
+          </div>
+        )}
 
       {/* Live content */}
       {["heading", "paragraph", "button"].includes(liveBlock.type) && (
@@ -733,44 +788,23 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
           </div>
         </nav>
       )}
- 
-      {/* Action Icons - Only show in edit mode */}
-      {!previewMode && (
-        <div className="absolute top-1 right-1 flex gap-2">
-          {/* Drag handle */}
-          {dragHandleProps && <button
-              {...dragHandleProps}
-              className="p-1 text-gray-500 hover:text-gray-700 cursor-grab active:cursor-grabbing transition"
-            >
-              <FaGripVertical size={16} />
-            </button>}
-          
-          <button onClick={(e) => { e.stopPropagation(); onDuplicate && onDuplicate(); }}
-                  className="p-1 text-green-600 hover:text-green-800 transition">
-            <FaClone size={16} />
-          </button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete && onDelete(); }}
-                  className="p-1 text-red-600 hover:text-red-800 transition">
-            <FaTrash size={16} />
-          </button>
-        </div>
-      )}
 
-      {/* Resize Handles - Only show in edit mode and when selected */}
-      {!previewMode && isSelected && (
-        <>
-          {/* Left resize handle */}
-          <div
-            className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 cursor-ew-resize opacity-0 hover:opacity-100 transition-opacity"
-            onMouseDown={(e) => handleResizeStart(e, 'left')}
-          />
-          {/* Right resize handle */}
-          <div
-            className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 cursor-ew-resize opacity-0 hover:opacity-100 transition-opacity"
-            onMouseDown={(e) => handleResizeStart(e, 'right')}
-          />
-        </>
-      )}
+        {/* Resize Handles - Only show in edit mode and when selected */}
+        {!previewMode && isSelected && (
+          <>
+            {/* Left resize handle */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500 cursor-ew-resize opacity-0 hover:opacity-100 transition-all duration-200 rounded-full"
+              onMouseDown={(e) => handleResizeStart(e, 'left')}
+            />
+            {/* Right resize handle */}
+            <div
+              className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500 cursor-ew-resize opacity-0 hover:opacity-100 transition-all duration-200 rounded-full"
+              onMouseDown={(e) => handleResizeStart(e, 'right')}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }
