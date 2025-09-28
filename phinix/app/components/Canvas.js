@@ -32,9 +32,9 @@ function DroppableCanvas({ children, hasInspector, viewport }) {
   
   const getViewportStyles = () => {
     const baseStyles = {
-      paddingLeft: "300px",
+      paddingLeft: "272px", // Match sidebar width (w-64 + padding)
       paddingRight: hasInspector ? "360px" : "60px",
-      paddingTop: "140px", // Adjusted for single enhanced navbar
+      paddingTop: "80px", // Adjusted for full-width navbar
       minHeight: "100vh",
       position: "relative",
       transition: "all 0.3s ease-in-out",
@@ -85,6 +85,9 @@ export default function Canvas() {
   const [previewMode, setPreviewMode] = useState(false);
   const [viewport, setViewport] = useState('desktop');
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showPageModal, setShowPageModal] = useState(false);
+  const [showDeletePageModal, setShowDeletePageModal] = useState(false);
+  const [newPageName, setNewPageName] = useState('');
   const [globalStyles, setGlobalStyles] = useState({
     fontFamily: 'Inter, sans-serif',
     primaryColor: '#3B82F6',
@@ -364,25 +367,33 @@ export default function Canvas() {
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <Sidebar />
       
-      {/* Enhanced CMS Navbar */}
-      <nav className="fixed top-0 left-64 right-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14">
+      {/* Enhanced Full-Width Dark CMS Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-gray-700 shadow-2xl backdrop-blur-sm" style={{ fontFamily: globalStyles.fontFamily }}>
+        <div className="w-full px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
             {/* Left Section - Brand & Page Management */}
             <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-blue-500/20">
+                  <span className="text-white font-bold text-lg">P</span>
                 </div>
-                <span className="text-lg font-semibold text-gray-900">Phinix CMS</span>
+                <div>
+                  <span className="text-xl font-bold text-white">Phinix CMS</span>
+                  <div className="text-xs text-gray-400">Website Builder</div>
+                </div>
               </div>
               
-              <div className="h-6 w-px bg-gray-300"></div>
+              <div className="h-8 w-px bg-gray-600"></div>
               
               {/* Page Management */}
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm font-medium text-gray-700">Page:</label>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3 bg-gray-800 rounded-lg px-4 py-2 border border-gray-700">
+                  <label className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Page:
+                  </label>
                   <select
                     value={currentPageId || ''}
                     onChange={(e) => {
@@ -392,170 +403,59 @@ export default function Canvas() {
                       setBlocks(page?.blocks || []);
                       setSelectedBlockId(null);
                     }}
-                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-1.5 min-w-[140px]"
+                    className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 min-w-[160px] font-medium shadow-sm hover:bg-gray-600 transition-colors"
                   >
-                    {pages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {pages.map(p => <option key={p.id} value={p.id} className="bg-gray-700 text-white">{p.name}</option>)}
                   </select>
+                  
+                  <div className="h-5 w-px bg-gray-600"></div>
+                  
+                  <div className="text-xs text-gray-400">
+                    {pages.length} {pages.length === 1 ? 'page' : 'pages'}
+                  </div>
                 </div>
                 
-                <button
-                  onClick={() => {
-                    const name = prompt('Page name', `Page ${pages.length+1}`);
-                    if (!name) return;
-                    const newPage = { id: generateUUID(), name, blocks: [] };
-                    const newPages = [...pages, newPage];
-                    setPages(newPages);
-                    setCurrentPageId(newPage.id);
-                    setBlocks([]);
-                    saveToHistory(newPages);
-                  }}
-                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Page
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowPageModal(true)}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg"
+                    title="Create New Page"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    New
+                  </button>
+                  
+                  {pages.length > 1 && (
+                    <button
+                      onClick={() => setShowDeletePageModal(true)}
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-400 bg-gray-800 border border-red-500/30 rounded-lg hover:bg-red-900/20 hover:text-red-300 hover:border-red-400 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
+                      title="Remove Current Page"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Center Section - Main Actions */}
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={saveProject}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                Save
-              </button>
-              
-              <button
-                onClick={loadProject}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                </svg>
-                Load
-              </button>
-
-              <button
-                onClick={() => setShowTemplateModal(true)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                </svg>
-                Templates
-              </button>
-
-              <button
-                onClick={handleExport}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Export
-              </button>
-            </div>
-
-            {/* Right Section - View Controls & Actions */}
-            <div className="flex items-center space-x-4">
-              {/* Responsive View Toggle */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewport('mobile')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewport === 'mobile' 
-                      ? 'bg-white text-blue-600 shadow-sm' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Mobile View"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.666.804 4.329A1 1 0 0113 18H7a1 1 0 01-.707-1.005l.804-4.329L7.22 15H5a2 2 0 01-2-2V5zm5.5 5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setViewport('tablet')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewport === 'tablet' 
-                      ? 'bg-white text-blue-600 shadow-sm' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Tablet View"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v10h10V5H5z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setViewport('desktop')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewport === 'desktop' 
-                      ? 'bg-white text-blue-600 shadow-sm' 
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  title="Desktop View"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v10h10V5H5z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="h-6 w-px bg-gray-300"></div>
-
-              {/* Preview & Edit Mode */}
-              <button
-                onClick={openPreview}
-                className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                Preview
-              </button>
-              
-              <button
-                onClick={() => setPreviewMode(!previewMode)}
-                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-2 transition-colors ${
-                  previewMode 
-                    ? 'text-orange-700 bg-orange-100 border border-orange-300 hover:bg-orange-200 focus:ring-orange-500' 
-                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
-                }`}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                {previewMode ? 'Edit Mode' : 'Design Mode'}
-              </button>
-
-              {/* Block Counter */}
-              <div className="flex items-center px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                <span className="text-sm font-medium text-gray-700">
-                  {blocks.length} blocks
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Secondary Toolbar */}
-          <div className="flex items-center justify-between py-2 border-t border-gray-200">
-            <div className="flex items-center space-x-2">
+            {/* Center Section - History Controls */}
+            <div className="flex items-center space-x-3 bg-gray-800 rounded-lg px-3 py-1 border border-gray-700">
               <button
                 onClick={undo}
                 disabled={historyIndex <= 0}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm ${
+                  historyIndex <= 0 
+                    ? 'text-gray-600 bg-gray-800 border border-gray-700 cursor-not-allowed' 
+                    : 'text-gray-300 bg-gray-700 border border-gray-600 hover:bg-gray-600 hover:text-white focus:ring-blue-500'
+                }`}
+                title={`Undo (${historyIndex} steps available)`}
               >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                 </svg>
                 Undo
@@ -563,21 +463,157 @@ export default function Canvas() {
               <button
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm ${
+                  historyIndex >= history.length - 1
+                    ? 'text-gray-600 bg-gray-800 border border-gray-700 cursor-not-allowed' 
+                    : 'text-gray-300 bg-gray-700 border border-gray-600 hover:bg-gray-600 hover:text-white focus:ring-blue-500'
+                }`}
+                title={`Redo (${history.length - historyIndex - 1} steps available)`}
               >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10h7a8 8 0 018 8v2M13 10l-6 6m6-6l-6-6" />
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
                 </svg>
                 Redo
               </button>
             </div>
-            
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span>Ctrl+Z to undo</span>
-              <span>•</span>
-              <span>Ctrl+Y to redo</span>
-              <span>•</span>
-              <span>Ctrl+S to save</span>
+
+            {/* Right Section - Actions & Controls */}
+            <div className="flex items-center space-x-4">
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={saveProject}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 border border-transparent rounded-lg hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg"
+                  title="Save Project (Ctrl+S)"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  Save
+                </button>
+                
+                <button
+                  onClick={loadProject}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm"
+                  title="Load Project"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                  Load
+                </button>
+
+                <button
+                  onClick={() => setShowTemplateModal(true)}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-lg hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg"
+                  title="Style Templates"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                  </svg>
+                  Templates
+                </button>
+
+                <button
+                  onClick={handleExport}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm"
+                  title="Export Project"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export
+                </button>
+              </div>
+
+              <div className="h-8 w-px bg-gray-600"></div>
+
+              {/* View Controls */}
+              <div className="flex items-center space-x-3">
+                {/* Responsive View Toggle */}
+                <div className="flex items-center bg-gray-800 rounded-lg p-1 shadow-inner border border-gray-700">
+                  <button
+                    onClick={() => setViewport('mobile')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewport === 'mobile' 
+                        ? 'bg-blue-600 text-white shadow-md transform scale-105' 
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                    }`}
+                    title="Mobile View (375px)"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.666.804 4.329A1 1 0 0113 18H7a1 1 0 01-.707-1.005l.804-4.329L7.22 15H5a2 2 0 01-2-2V5zm5.5 5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setViewport('tablet')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewport === 'tablet' 
+                        ? 'bg-blue-600 text-white shadow-md transform scale-105' 
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                    }`}
+                    title="Tablet View (768px)"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v10h10V5H5z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setViewport('desktop')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewport === 'desktop' 
+                        ? 'bg-blue-600 text-white shadow-md transform scale-105' 
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                    }`}
+                    title="Desktop View (Full Width)"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v10h10V5H5z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {/* Preview Controls */}
+                <button
+                  onClick={openPreview}
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm"
+                  title="Open Preview in New Window"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Preview
+                </button>
+                
+                <button
+                  onClick={() => setPreviewMode(!previewMode)}
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm ${
+                    previewMode 
+                      ? 'text-orange-300 bg-orange-900/30 border border-orange-500/30 hover:bg-orange-900/50 focus:ring-orange-500' 
+                      : 'text-gray-300 bg-gray-800 border border-gray-600 hover:bg-gray-700 hover:text-white focus:ring-blue-500'
+                  }`}
+                  title={previewMode ? 'Switch to Edit Mode' : 'Switch to Preview Mode'}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  {previewMode ? 'Edit' : 'Preview'}
+                </button>
+
+                {/* Block Counter */}
+                <div className="flex items-center px-3 py-2 bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600 rounded-lg shadow-inner">
+                  <svg className="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <span className="text-sm font-semibold text-white">
+                    {blocks.length}
+                  </span>
+                  <span className="text-sm text-gray-400 ml-1">
+                    {blocks.length === 1 ? 'block' : 'blocks'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -838,6 +874,194 @@ export default function Canvas() {
                 }}
               >
                 Apply Styles
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* New Page Creation Modal */}
+      {showPageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="relative bg-gray-800 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full ring-1 ring-gray-600">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-blue-500/20">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Create New Page</h3>
+                  <p className="text-sm text-gray-400">Add a new page to your website</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPageModal(false);
+                  setNewPageName('');
+                }}
+                className="text-gray-400 hover:text-gray-200 transition-colors p-2 hover:bg-gray-700 rounded-lg"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6">
+              <div className="mb-4">
+                <label htmlFor="pageName" className="block text-sm font-medium text-gray-300 mb-2">
+                  Page Name
+                </label>
+                <input
+                  type="text"
+                  id="pageName"
+                  value={newPageName}
+                  onChange={(e) => setNewPageName(e.target.value)}
+                  className="w-full px-3 py-3 text-sm text-white bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-gray-600 transition-colors"
+                  placeholder="Enter page name (e.g., About, Services, Contact)"
+                  autoFocus
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && newPageName.trim()) {
+                      const newPage = { id: generateUUID(), name: newPageName.trim(), blocks: [] };
+                      const newPages = [...pages, newPage];
+                      setPages(newPages);
+                      setCurrentPageId(newPage.id);
+                      setBlocks([]);
+                      setSelectedBlockId(null);
+                      saveToHistory(newPages);
+                      setShowPageModal(false);
+                      setNewPageName('');
+                    }
+                  }}
+                />
+              </div>
+              
+              <div className="text-xs text-gray-400 mb-4">
+                <div className="flex items-center space-x-1">
+                  <svg className="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span>Tips: Use descriptive names like "About Us", "Our Services", etc.</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-700 bg-gray-800/50">
+              <button
+                onClick={() => {
+                  setShowPageModal(false);
+                  setNewPageName('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!newPageName.trim()) return;
+                  const newPage = { id: generateUUID(), name: newPageName.trim(), blocks: [] };
+                  const newPages = [...pages, newPage];
+                  setPages(newPages);
+                  setCurrentPageId(newPage.id);
+                  setBlocks([]);
+                  setSelectedBlockId(null);
+                  saveToHistory(newPages);
+                  setShowPageModal(false);
+                  setNewPageName('');
+                }}
+                disabled={!newPageName.trim()}
+                className="px-6 py-2 text-sm font-medium text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ 
+                  backgroundColor: newPageName.trim() ? globalStyles.primaryColor : '#9CA3AF',
+                  borderRadius: globalStyles.borderRadius,
+                }}
+              >
+                Create Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Delete Page Confirmation Modal */}
+      {showDeletePageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="relative bg-gray-800 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full ring-1 ring-red-500/20">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-red-500/20">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Remove Page</h3>
+                  <p className="text-sm text-gray-400">This action cannot be undone</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDeletePageModal(false)}
+                className="text-gray-400 hover:text-gray-200 transition-colors p-2 hover:bg-gray-700 rounded-lg"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-sm text-gray-300 mb-3">
+                  Are you sure you want to remove the page <strong className="text-white">"{pages.find(p => p.id === currentPageId)?.name}"</strong>?
+                </p>
+                <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-5 h-5 text-red-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-red-300">Warning</p>
+                      <p className="text-sm text-red-400 mt-1">
+                        All blocks and content on this page will be permanently deleted.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-700 bg-gray-800/50">
+              <button
+                onClick={() => setShowDeletePageModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (pages.length <= 1) return;
+                  
+                  const updatedPages = pages.filter(p => p.id !== currentPageId);
+                  const newCurrentPage = updatedPages[0];
+                  
+                  setPages(updatedPages);
+                  setCurrentPageId(newCurrentPage.id);
+                  setBlocks(newCurrentPage.blocks || []);
+                  setSelectedBlockId(null);
+                  saveToHistory(updatedPages);
+                  setShowDeletePageModal(false);
+                }}
+                className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 border border-transparent rounded-lg hover:from-red-700 hover:to-red-800 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors shadow-lg"
+              >
+                Remove Page
               </button>
             </div>
           </div>

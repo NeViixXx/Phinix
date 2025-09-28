@@ -21,7 +21,7 @@ export function SidebarBlock({ id, label, icon }) {
       {...listeners}
       {...attributes}
       style={style}
-      className="p-2 rounded cursor-move hover:bg-gray-700 flex items-center gap-2 text-sm text-white"
+      className="p-3 rounded-lg cursor-move hover:bg-gray-700 active:bg-gray-600 flex items-center gap-3 text-sm text-gray-200 hover:text-white transition-all duration-200 border border-transparent hover:border-gray-600 shadow-sm"
       data-type={id}
     >
       <span>{icon}</span>
@@ -87,9 +87,17 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed top-0 left-0 z-40 w-60 h-screen p-3 bg-gray-800 overflow-y-auto">
-      <div className="flex items-center justify-center h-14 mb-4  border-gray-700">
-      
+    <aside className="fixed top-16 left-0 z-30 w-64 h-[calc(100vh-4rem)] p-4 bg-gray-900 border-r border-gray-700 overflow-y-auto shadow-xl">
+      <div className="flex items-center justify-center mb-6 pb-4 border-b border-gray-700">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">🧩</span>
+          </div>
+          <div>
+            <h2 className="text-white font-semibold text-sm">Components</h2>
+            <p className="text-gray-400 text-xs">Drag to canvas</p>
+          </div>
+        </div>
       </div>
 
       {Object.entries(groupedBlocks).map(([group, blocks]) => {
@@ -98,13 +106,13 @@ export default function Sidebar() {
           <div key={group} className="mb-3">
             <button
               onClick={() => toggleGroup(group)}
-              className="flex items-center justify-between w-full text-xs font-semibold uppercase text-gray-400 hover:text-white transition"
+              className="flex items-center justify-between w-full text-xs font-semibold uppercase text-gray-400 hover:text-white transition-colors duration-200 py-2 px-1 rounded hover:bg-gray-800"
             >
               <span>{group}</span>
               {isOpen ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
             </button>
             {isOpen && (
-              <div className="mt-2 flex flex-col gap-2 pl-2">
+              <div className="mt-3 flex flex-col gap-2 pl-1">
                 {blocks.map((block) => (
                   <SidebarBlock
                     key={block.id}
