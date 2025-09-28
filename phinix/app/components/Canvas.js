@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import CMSBlock from "./CMSBlock";
 import SortableBlock from "./SortableBlock";
 import InspectorPanel from "./InspectorPanel";
+import Navbar from "./Navbar";
 
 
 // Safe UUID generator for environments without crypto.randomUUID
@@ -70,6 +71,7 @@ function DroppableCanvas({ children, hasInspector, viewport, dragIndicator }) {
       ref={setNodeRef}
       style={getViewportStyles()}
       className={`relative ${viewport !== 'desktop' ? 'border border-gray-600 rounded-xl mx-auto my-4 shadow-2xl' : ''}`}
+      data-canvas="true"
     >
       {/* Drag Indicator */}
       {dragIndicator && (
@@ -453,261 +455,36 @@ export default function Canvas() {
         onDragEnd={handleDragEnd}
       >
         <Sidebar />
-      
-      
-      {/* Enhanced Full-Width Dark CMS Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-gray-700 shadow-2xl backdrop-blur-sm" style={{ fontFamily: globalStyles.fontFamily }}>
-        <div className="w-full px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Left Section - Brand & Page Management */}
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-blue-500/20">
-                  <span className="text-white font-bold text-lg">P</span>
-                </div>
-                <div>
-                  <span className="text-xl font-bold text-white">Phinix CMS</span>
-                  <div className="text-xs text-gray-400">Website Builder</div>
-                </div>
-              </div>
-              
-              <div className="h-8 w-px bg-gray-600"></div>
-              
-              {/* Page Management */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3 bg-gray-800 rounded-lg px-4 py-2 border border-gray-700">
-                  <label className="text-sm font-semibold text-gray-300 flex items-center gap-2">
-                    <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Page:
-                  </label>
-                  <select
-                    value={currentPageId || ''}
-                    onChange={(e) => {
-                      const pid = e.target.value;
-                      setCurrentPageId(pid);
-                      const page = pages.find(p=>p.id===pid);
-                      setBlocks(page?.blocks || []);
-                      setSelectedBlockId(null);
-                    }}
-                    className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 min-w-[160px] font-medium shadow-sm hover:bg-gray-600 transition-colors"
-                  >
-                    {pages.map(p => <option key={p.id} value={p.id} className="bg-gray-700 text-white">{p.name}</option>)}
-                  </select>
-                  
-                  <div className="h-5 w-px bg-gray-600"></div>
-                  
-                  <div className="text-xs text-gray-400">
-                    {pages.length} {pages.length === 1 ? 'page' : 'pages'}
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setShowPageModal(true)}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg"
-                    title="Create New Page"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    New
-                  </button>
-                  
-                  {pages.length > 1 && (
-                    <button
-                      onClick={() => setShowDeletePageModal(true)}
-                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-400 bg-gray-800 border border-red-500/30 rounded-lg hover:bg-red-900/20 hover:text-red-300 hover:border-red-400 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
-                      title="Remove Current Page"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Remove
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
+        
+        <Navbar
+          pages={pages}
+          currentPageId={currentPageId}
+          history={history}
+          historyIndex={historyIndex}
+          blocks={blocks}
+          globalStyles={globalStyles}
+          viewport={viewport}
+          previewMode={previewMode}
+          onPageChange={(pageId) => {
+            setCurrentPageId(pageId);
+            const page = pages.find(p => p.id === pageId);
+            setBlocks(page?.blocks || []);
+            setSelectedBlockId(null);
+          }}
+          onSave={saveProject}
+          onLoad={loadProject}
+          onUndo={undo}
+          onRedo={redo}
+          onExport={handleExport}
+          onPreview={openPreview}
+          onPreviewModeToggle={() => setPreviewMode(!previewMode)}
+          onViewportChange={setViewport}
+          onShowTemplateModal={() => setShowTemplateModal(true)}
+          onShowPageModal={() => setShowPageModal(true)}
+          onShowDeletePageModal={() => setShowDeletePageModal(true)}
+        />
 
-            {/* Center Section - History Controls */}
-            <div className="flex items-center space-x-3 bg-gray-800 rounded-lg px-3 py-1 border border-gray-700">
-              <button
-                onClick={undo}
-                disabled={historyIndex <= 0}
-                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm ${
-                  historyIndex <= 0 
-                    ? 'text-gray-600 bg-gray-800 border border-gray-700 cursor-not-allowed' 
-                    : 'text-gray-300 bg-gray-700 border border-gray-600 hover:bg-gray-600 hover:text-white focus:ring-blue-500'
-                }`}
-                title={`Undo (${historyIndex} steps available)`}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                </svg>
-                Undo
-              </button>
-              <button
-                onClick={redo}
-                disabled={historyIndex >= history.length - 1}
-                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm ${
-                  historyIndex >= history.length - 1
-                    ? 'text-gray-600 bg-gray-800 border border-gray-700 cursor-not-allowed' 
-                    : 'text-gray-300 bg-gray-700 border border-gray-600 hover:bg-gray-600 hover:text-white focus:ring-blue-500'
-                }`}
-                title={`Redo (${history.length - historyIndex - 1} steps available)`}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
-                </svg>
-                Redo
-              </button>
-            </div>
-
-            {/* Right Section - Actions & Controls */}
-            <div className="flex items-center space-x-4">
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={saveProject}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 border border-transparent rounded-lg hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg"
-                  title="Save Project (Ctrl+S)"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  Save
-                </button>
-                
-                <button
-                  onClick={loadProject}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm"
-                  title="Load Project"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                  </svg>
-                  Load
-                </button>
-
-                <button
-                  onClick={() => setShowTemplateModal(true)}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-lg hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg"
-                  title="Style Templates"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                  </svg>
-                  Templates
-                </button>
-
-                <button
-                  onClick={handleExport}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm"
-                  title="Export Project"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Export
-                </button>
-              </div>
-
-              <div className="h-8 w-px bg-gray-600"></div>
-
-              {/* View Controls */}
-              <div className="flex items-center space-x-3">
-                {/* Responsive View Toggle */}
-                <div className="flex items-center bg-gray-800 rounded-lg p-1 shadow-inner border border-gray-700">
-                  <button
-                    onClick={() => setViewport('mobile')}
-                    className={`p-2 rounded-md transition-all duration-200 ${
-                      viewport === 'mobile' 
-                        ? 'bg-blue-600 text-white shadow-md transform scale-105' 
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                    }`}
-                    title="Mobile View (375px)"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.666.804 4.329A1 1 0 0113 18H7a1 1 0 01-.707-1.005l.804-4.329L7.22 15H5a2 2 0 01-2-2V5zm5.5 5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setViewport('tablet')}
-                    className={`p-2 rounded-md transition-all duration-200 ${
-                      viewport === 'tablet' 
-                        ? 'bg-blue-600 text-white shadow-md transform scale-105' 
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                    }`}
-                    title="Tablet View (768px)"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v10h10V5H5z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setViewport('desktop')}
-                    className={`p-2 rounded-md transition-all duration-200 ${
-                      viewport === 'desktop' 
-                        ? 'bg-blue-600 text-white shadow-md transform scale-105' 
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
-                    }`}
-                    title="Desktop View (Full Width)"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v10h10V5H5z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-                
-                {/* Preview Controls */}
-                <button
-                  onClick={openPreview}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm"
-                  title="Open Preview in New Window"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  Preview
-                </button>
-                
-                <button
-                  onClick={() => setPreviewMode(!previewMode)}
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-sm ${
-                    previewMode 
-                      ? 'text-orange-300 bg-orange-900/30 border border-orange-500/30 hover:bg-orange-900/50 focus:ring-orange-500' 
-                      : 'text-gray-300 bg-gray-800 border border-gray-600 hover:bg-gray-700 hover:text-white focus:ring-blue-500'
-                  }`}
-                  title={previewMode ? 'Switch to Edit Mode' : 'Switch to Preview Mode'}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  {previewMode ? 'Edit' : 'Preview'}
-                </button>
-
-                {/* Block Counter */}
-                <div className="flex items-center px-3 py-2 bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600 rounded-lg shadow-inner">
-                  <svg className="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                  <span className="text-sm font-semibold text-white">
-                    {blocks.length}
-                  </span>
-                  <span className="text-sm text-gray-400 ml-1">
-                    {blocks.length === 1 ? 'block' : 'blocks'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <DroppableCanvas hasInspector={!!selectedBlock && !previewMode} viewport={viewport}>
+      <DroppableCanvas hasInspector={!!selectedBlock && !previewMode} viewport={viewport} dragIndicator={dragIndicator}>
         {blocks.length === 0 && <p className="text-gray-500 text-center py-8">Drop blocks here to start building</p>}
 
         <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
