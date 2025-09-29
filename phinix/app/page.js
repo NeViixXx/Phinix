@@ -35,7 +35,7 @@ const mockPosts = [
 
 function Header() {
   return (
-    <header className="bg-white border-b">
+    <header className="bg-gray-700 border-b border-gray-600">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">W</div>
@@ -80,7 +80,7 @@ function Hero() {
 
 function PostCard({ post }) {
   return (
-    <article className="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <article className="bg-gray-700 rounded-2xl shadow-sm overflow-hidden border border-gray-600">
       <div className="h-48 w-full overflow-hidden">
         <img src={post.cover} alt={post.title} className="w-full h-full object-cover" />
       </div>
@@ -101,7 +101,7 @@ function PostCard({ post }) {
 function Sidebar() {
   return (
     <aside className="space-y-6">
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-600">
         <h4 className="font-semibold">Search</h4>
         <input placeholder="Search posts..." className="mt-3 w-full border rounded-md px-3 py-2 text-sm" />
       </div>
@@ -164,7 +164,7 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="border-t bg-white">
+      <footer className="border-t border-gray-600 bg-gray-700">
         <div className="max-w-7xl mx-auto px-6 py-6 text-sm text-gray-600">© {new Date().getFullYear()} NextWP — demo frontend</div>
       </footer>
     </div>

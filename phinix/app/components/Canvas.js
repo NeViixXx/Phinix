@@ -518,7 +518,7 @@ export default function Canvas() {
       {/* Template Modal */}
       {showTemplateModal && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-80 flex items-center justify-center z-50 p-4">
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+          <div className="relative bg-gray-700 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
@@ -632,7 +632,7 @@ export default function Canvas() {
                         <select
                           value={globalStyles.fontFamily}
                           onChange={(e) => setGlobalStyles({ ...globalStyles, fontFamily: e.target.value })}
-                          className="w-full px-3 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                          className="w-full px-3 py-2.5 text-sm text-white bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                         >
                           <option value="Inter, sans-serif">Inter</option>
                           <option value="Roboto, sans-serif">Roboto</option>
@@ -726,7 +726,7 @@ export default function Canvas() {
             <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
               <button
                 onClick={() => setShowTemplateModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500"
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-gray-500 rounded-lg hover:bg-gray-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
               >
                 Cancel
               </button>

@@ -206,35 +206,43 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
 
       {/* Live content */}
       {["heading", "paragraph", "button"].includes(liveBlock.type) && (
-        <div className="p-1">
-          {liveBlock.type === "heading" && <h2>{liveBlock.content}</h2>}
-          {liveBlock.type === "paragraph" && <p>{liveBlock.content}</p>}
-          {liveBlock.type === "button" && <button className="px-4 py-2 rounded text-white">{liveBlock.content}</button>}
+        <div className="p-4 bg-gray-700 rounded-xl border border-gray-600 shadow-lg">
+          {liveBlock.type === "heading" && <h2 className="text-white font-bold text-xl md:text-2xl">{liveBlock.content}</h2>}
+          {liveBlock.type === "paragraph" && <p className="text-gray-300 leading-relaxed">{liveBlock.content}</p>}
+          {liveBlock.type === "button" && <button className="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-500 transition-all duration-200 font-medium">{liveBlock.content}</button>}
         </div>
       )}
-      {liveBlock.type === "image" && <img src={liveBlock.content} alt="" className="max-w-full rounded transition-all duration-300 ease-in-out" />}
-      {liveBlock.type === "video" && <video src={liveBlock.content} controls className="max-w-full rounded transition-all duration-300 ease-in-out" />}
+      {liveBlock.type === "image" && (
+        <div className="p-4 bg-gray-700 rounded-xl border border-gray-600 shadow-lg">
+          <img src={liveBlock.content} alt="" className="max-w-full rounded-lg transition-all duration-300 ease-in-out" />
+        </div>
+      )}
+      {liveBlock.type === "video" && (
+        <div className="p-4 bg-gray-700 rounded-xl border border-gray-600 shadow-lg">
+          <video src={liveBlock.content} controls className="max-w-full rounded-lg transition-all duration-300 ease-in-out" />
+        </div>
+      )}
       {liveBlock.type === "gallery" && (
-        <div className="flex gap-2 flex-wrap transition-all duration-300 ease-in-out">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-4 bg-gray-700 rounded-xl border border-gray-600 shadow-lg transition-all duration-300 ease-in-out">
           {Array.isArray(liveBlock.content) && liveBlock.content.map((img, i) => (
-            <img key={i} src={img} alt="" className="w-24 h-24 object-cover rounded border transition-all duration-300 ease-in-out" />
+            <img key={i} src={img} alt="" className="w-full h-24 object-cover rounded-lg border border-gray-600 hover:opacity-90 transition-all duration-300 ease-in-out" />
           ))}
         </div>
       )}
       {liveBlock.type === "card" && (
-        <div className="w-full overflow-hidden" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+        <div className="w-full overflow-hidden bg-gray-700 rounded-xl border border-gray-600 shadow-lg" style={{ borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
           {liveBlock.content?.image && (
             <img src={liveBlock.content.image} alt="" className="w-full" style={{ height: liveBlock.content?.imageHeight || 'auto', objectFit: liveBlock.content?.imageFit || 'cover', borderTopLeftRadius: liveBlock.content?.imageRadius, borderTopRightRadius: liveBlock.content?.imageRadius }} />
           )}
-          <div className="p-4" style={{ textAlign: liveBlock.content?.align || 'left' }}>
+          <div className="p-6" style={{ textAlign: liveBlock.content?.align || 'left' }}>
             {liveBlock.content?.heading && (
-              <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.headingColor, fontSize: liveBlock.content?.headingFontSize }}>{liveBlock.content.heading}</h3>
+              <h3 className="font-bold mb-3 text-white" style={{ fontSize: liveBlock.content?.headingFontSize }}>{liveBlock.content.heading}</h3>
             )}
             {liveBlock.content?.text && (
-              <p className="mb-3" style={{ color: liveBlock.content?.textColor, fontSize: liveBlock.content?.textFontSize }}>{liveBlock.content.text}</p>
+              <p className="mb-4 text-gray-300" style={{ fontSize: liveBlock.content?.textFontSize }}>{liveBlock.content.text}</p>
             )}
             {liveBlock.content?.buttonLabel && (
-              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor }}>
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-5 py-2.5 rounded-lg bg-gray-600 text-white hover:bg-gray-500 transition-all duration-200 font-medium">
                 {liveBlock.content.buttonLabel}
               </a>
             )}
@@ -242,17 +250,16 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         </div>
       )}
       {liveBlock.type === "hero" && (
-        <div className="w-full relative flex items-center justify-center" style={{ backgroundImage: `url(${liveBlock.content?.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: liveBlock.content?.minHeight }}>
-          <div className="absolute inset-0" style={{ background: liveBlock.content?.overlayColor || 'rgba(0,0,0,0.5)' }}></div>
-          <div className="relative z-10 p-8" style={{ textAlign: liveBlock.content?.align || 'center' }}>
+        <div className="w-full bg-gray-700 border border-gray-600 rounded-xl overflow-hidden shadow-lg" style={{ height: liveBlock.content?.height }}>
+          <div className="flex flex-col items-center justify-center h-full text-center px-4 py-16">
             {liveBlock.content?.title && (
-              <h1 className="font-bold mb-4" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content.title}</h1>
+              <h1 className="text-4xl font-bold mb-4 text-white" style={{ fontSize: liveBlock.content?.titleSize }}>{liveBlock.content.title}</h1>
             )}
             {liveBlock.content?.subtitle && (
-              <p className="mb-8 max-w-2xl mx-auto" style={{ color: liveBlock.content?.subtitleColor, fontSize: liveBlock.content?.subtitleSize }}>{liveBlock.content.subtitle}</p>
+              <p className="mb-8 max-w-2xl mx-auto text-gray-200" style={{ fontSize: liveBlock.content?.subtitleSize }}>{liveBlock.content.subtitle}</p>
             )}
             {liveBlock.content?.buttonText && (
-              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-8 py-3 rounded-lg transition font-semibold" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor }}>
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-8 py-3 rounded-lg bg-gray-600 text-white hover:bg-gray-500 transition-all duration-200 font-semibold">
                 {liveBlock.content.buttonText}
               </a>
             )}
@@ -260,16 +267,16 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         </div>
       )}
       {liveBlock.type === "navbar" && (
-        <nav className="w-full" style={{ position: liveBlock.content?.sticky ? 'sticky' : 'relative', top: 0, background: liveBlock.content?.bg }}>
+        <nav className="w-full bg-gray-700 border-b border-gray-600 shadow-md z-50" style={{ position: liveBlock.content?.sticky ? 'sticky' : 'relative', top: 0 }}>
           <div className="max-w-7xl mx-auto" style={{ paddingLeft: liveBlock.content?.paddingX, paddingRight: liveBlock.content?.paddingX, height: liveBlock.content?.height }}>
             <div className="flex justify-between items-center h-full">
               <div className="flex-shrink-0">
-                <span className="font-bold" style={{ color: liveBlock.content?.textColor, fontSize: '20px' }}>{liveBlock.content?.brand || "Brand"}</span>
+                <span className="font-bold text-white text-xl">{liveBlock.content?.brand || "Brand"}</span>
               </div>
               <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-4">
+                <div className="ml-10 flex items-baseline space-x-6">
                   {liveBlock.content?.links?.map((link, index) => (
-                    <a key={index} href={link.href} className="px-3 py-2 rounded-md text-sm font-medium transition" style={{ color: liveBlock.content?.textColor }} onMouseEnter={(e)=> e.currentTarget.style.color = liveBlock.content?.linkHover} onMouseLeave={(e)=> e.currentTarget.style.color = liveBlock.content?.textColor}>
+                    <a key={index} href={link.href} className="px-4 py-2 rounded-lg text-sm font-medium text-gray-200 hover:text-white hover:bg-gray-600 transition-all duration-200">
                       {link.text}
                     </a>
                   ))}
@@ -280,15 +287,15 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         </nav>
       )}
       {liveBlock.type === "footer" && (
-        <footer className="w-full" style={{ background: liveBlock.content?.bg, color: liveBlock.content?.textColor }}>
+        <footer className="w-full bg-gray-700 border-t border-gray-600 rounded-b-xl shadow-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: liveBlock.content?.paddingY, paddingBottom: liveBlock.content?.paddingY }}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
-                <h3 className="text-lg font-semibold mb-4" style={{ color: liveBlock.content?.textColor }}>Quick Links</h3>
+                <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
                 <ul className="space-y-2">
                   {liveBlock.content?.links?.map((link, index) => (
                     <li key={index}>
-                      <a href={link.href} className="transition" style={{ color: liveBlock.content?.linkColor }} onMouseEnter={(e)=> e.currentTarget.style.color = liveBlock.content?.linkHover} onMouseLeave={(e)=> e.currentTarget.style.color = liveBlock.content?.linkColor}>
+                      <a href={link.href} className="text-gray-300 hover:text-white transition-all duration-200">
                         {link.text}
                       </a>
                     </li>
@@ -296,125 +303,150 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-4" style={{ color: liveBlock.content?.textColor }}>Follow Us</h3>
+                <h3 className="text-lg font-semibold mb-4 text-white">Follow Us</h3>
                 <div className="flex space-x-4">
                   {liveBlock.content?.social?.map((social, index) => (
-                    <a key={index} href={social.href} className="transition" style={{ color: liveBlock.content?.linkColor }} onMouseEnter={(e)=> e.currentTarget.style.color = liveBlock.content?.linkHover} onMouseLeave={(e)=> e.currentTarget.style.color = liveBlock.content?.linkColor}>
+                    <a key={index} href={social.href} className="text-gray-300 hover:text-white transition-all duration-200">
                       {social.platform}
                     </a>
                   ))}
                 </div>
               </div>
               <div>
-                <p style={{ color: liveBlock.content?.textColor }}>{liveBlock.content?.copyright || "© 2024 MyBrand"}</p>
+                <p className="text-gray-300">{liveBlock.content?.copyright || "© 2024 MyBrand"}</p>
               </div>
             </div>
           </div>
         </footer>
       )}
       {liveBlock.type === "section" && (
-        <section className="w-full py-16" style={{ backgroundColor: liveBlock.content?.background || "#f8f9fa" }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="w-full bg-gray-700 border border-gray-600 rounded-xl overflow-hidden shadow-lg p-6 md:p-8" style={{ padding: liveBlock.content?.padding }}>
+          <div className="max-w-7xl mx-auto flex flex-col gap-4" style={{ textAlign: liveBlock.content?.align || 'left' }}>
             {liveBlock.content?.title && (
-              <h2 className="text-3xl font-bold text-center mb-8">{liveBlock.content.title}</h2>
+              <h2 className="text-2xl font-bold mb-2 text-white" style={{ fontSize: liveBlock.content?.titleSize }}>{liveBlock.content.title}</h2>
             )}
+            {liveBlock.content?.subtitle && (
+              <p className="mb-4 text-gray-300" style={{ fontSize: liveBlock.content?.subtitleSize }}>{liveBlock.content.subtitle}</p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Content placeholder for child elements */}
+              <div className="bg-gray-600/30 rounded-lg border border-gray-500 p-4 min-h-[100px] flex items-center justify-center">
+                <p className="text-gray-400">Drop content blocks here</p>
+              </div>
+            </div>
             {liveBlock.content?.content && (
-              <p className="text-lg text-center text-gray-600 max-w-3xl mx-auto">{liveBlock.content.content}</p>
+              <p className="text-lg text-gray-300 max-w-3xl mx-auto">{liveBlock.content.content}</p>
             )}
           </div>
         </section>
       )}
       {liveBlock.type === "grid" && (
-        <div
-          className="w-full"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${(liveBlock.content?.columns && (liveBlock.content.columns[viewport] || liveBlock.content.columns.base)) || 1}, minmax(0, 1fr))`,
-            gap: (liveBlock.content?.gap && (liveBlock.content.gap[viewport] || liveBlock.content.gap.base)) || '16px',
-          }}
-        >
-          {(liveBlock.content?.items || []).map((item, idx) => (
-            <div key={idx} className="min-w-0">
-              {/* Simple inner renderer for cards; future: recursive blocks */}
-              {item.type === 'card' && (
-                <div className="bg-white rounded shadow overflow-hidden">
-                  {item.content?.image && <img src={item.content.image} alt="" className="w-full h-auto object-cover" />}
-                  <div className="p-4">
-                    {item.content?.heading && <h3 className="text-xl font-semibold mb-2">{item.content.heading}</h3>}
-                    {item.content?.text && <p className="text-sm opacity-90 mb-3">{item.content.text}</p>}
-                    {item.content?.buttonLabel && <a href={item.content?.buttonHref || '#'} className="inline-block px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition">{item.content.buttonLabel}</a>}
-                  </div>
+        <div className="p-4 bg-gray-700 rounded-xl border border-gray-600 shadow-lg">
+          <div
+            className="w-full"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${(liveBlock.content?.columns && (liveBlock.content.columns[viewport] || liveBlock.content.columns.base)) || 1}, minmax(0, 1fr))`,
+              gap: (liveBlock.content?.gap && (liveBlock.content.gap[viewport] || liveBlock.content.gap.base)) || '16px',
+            }}
+          >
+            {(liveBlock.content?.items || []).length > 0 ? (
+              (liveBlock.content?.items || []).map((item, idx) => (
+                <div key={idx} className="min-w-0">
+                  {/* Simple inner renderer for cards; future: recursive blocks */}
+                  {item.type === 'card' && (
+                    <div className="bg-gray-700 rounded-xl border border-gray-600 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+                      {item.content?.image && <img src={item.content.image} alt="" className="w-full h-auto object-cover" />}
+                      <div className="p-6">
+                        {item.content?.heading && <h3 className="text-xl font-bold mb-3 text-white">{item.content.heading}</h3>}
+                        {item.content?.text && <p className="text-base text-gray-300 mb-4">{item.content.text}</p>}
+                        {item.content?.buttonLabel && <a href={item.content?.buttonHref || '#'} className="inline-block px-5 py-2.5 rounded-lg bg-gray-600 text-white font-medium hover:bg-gray-500 transition-all duration-200">{item.content.buttonLabel}</a>}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              ))
+            ) : (
+              <>
+                <div className="bg-gray-600/30 rounded-lg border border-gray-500 p-4 min-h-[100px] flex items-center justify-center">
+                  <p className="text-gray-400">Grid item 1</p>
+                </div>
+                <div className="bg-gray-600/30 rounded-lg border border-gray-500 p-4 min-h-[100px] flex items-center justify-center">
+                  <p className="text-gray-400">Grid item 2</p>
+                </div>
+                <div className="bg-gray-600/30 rounded-lg border border-gray-500 p-4 min-h-[100px] flex items-center justify-center">
+                  <p className="text-gray-400">Grid item 3</p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
       {liveBlock.type === "testimonial" && (
-        <div className="bg-white rounded shadow p-6 md:p-10">
-          <div className="flex items-center gap-4 mb-4">
-            {liveBlock.content?.avatar && <img src={liveBlock.content.avatar} alt="" className="w-16 h-16 rounded-full object-cover" />}
-            <div>
-              <div className="font-semibold">{liveBlock.content?.author}</div>
-              <div className="text-sm text-gray-500">{liveBlock.content?.role}</div>
-            </div>
+        <div className="w-full bg-gray-700 border border-gray-600 rounded-xl p-6 shadow-lg">
+          <div className="flex flex-col items-center text-center">
+            {liveBlock.content?.avatar && <img src={liveBlock.content.avatar} alt="" className="w-20 h-20 rounded-full mb-4 border-2 border-gray-600" />}
+            <p className="text-gray-300 mb-4 italic">{liveBlock.content?.quote || "This is a testimonial quote."}</p>
+            <p className="font-bold text-white">{liveBlock.content?.name || "John Doe"}</p>
+            <p className="text-gray-400 text-sm">{liveBlock.content?.title || "CEO, Company"}</p>
           </div>
-          <blockquote className="text-xl italic">“{liveBlock.content?.quote}”</blockquote>
         </div>
       )}
       {liveBlock.type === "pricing" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-1">
-          {(liveBlock.content?.plans || []).map((plan, idx) => (
-            <div key={idx} className="bg-gray-800 rounded shadow p-6">
-              <div className="text-lg font-semibold mb-2">{plan.name}</div>
-              <div className="text-3xl font-bold mb-4">{plan.price}</div>
-              <ul className="space-y-1 mb-4 text-sm text-gray-600">
-                {(plan.features || []).map((f, i) => <li key={i}>• {f}</li>)}
-              </ul>
-              <button className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition">{plan.cta || 'Choose'}</button>
-            </div>
-          ))}
+        <div className="w-full bg-gray-700 border border-gray-600 rounded-xl overflow-hidden shadow-lg">
+          <div className="p-6">
+            <h3 className="text-xl font-bold mb-2 text-white">{liveBlock.content?.title || "Basic Plan"}</h3>
+            <div className="text-3xl font-bold mb-4 text-white">{liveBlock.content?.price || "$19"}<span className="text-sm font-normal text-gray-400">{liveBlock.content?.period || "/month"}</span></div>
+            <ul className="mb-6 space-y-2">
+              {(liveBlock.content?.features || ["Feature 1", "Feature 2", "Feature 3"]).map((feature, idx) => (
+                <li key={idx} className="flex items-center text-gray-300">
+                  <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full py-2 px-4 bg-gray-600 hover:bg-gray-500 text-white font-medium rounded-lg transition-all duration-200">{liveBlock.content?.buttonText || "Get Started"}</button>
+          </div>
         </div>
       )}
       {liveBlock.type === "featurelist" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
-          {(liveBlock.content?.features || []).map((f, i) => (
-            <div key={i} className="bg-white rounded shadow p-6">
-              <div className="text-lg font-semibold mb-1">{f.title}</div>
-              <div className="text-sm text-gray-600">{f.description}</div>
-            </div>
-          ))}
+        <div className="w-full bg-gray-700 border border-gray-600 rounded-xl p-6 shadow-lg">
+          <h3 className="text-xl font-bold mb-4 text-white">{liveBlock.content?.title || "Features"}</h3>
+          <ul className="space-y-3">
+            {(liveBlock.content?.features || ["Feature 1", "Feature 2", "Feature 3"]).map((feature, idx) => (
+              <li key={idx} className="flex items-start">
+                <svg className="w-5 h-5 mr-2 text-green-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+                <span className="text-gray-300">{feature}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       {liveBlock.type === "productcard" && (
-        <div className="w-full max-w-sm mx-auto" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
-          {liveBlock.content?.image && (
-            <img src={liveBlock.content.image} alt="" className="w-full rounded-t-lg" style={{ height: '200px', objectFit: 'cover' }} />
-          )}
+        <div className="w-full bg-gray-700 border border-gray-600 rounded-xl overflow-hidden shadow-lg">
+          {liveBlock.content?.image && <img src={liveBlock.content.image} alt="" className="w-full h-48 object-cover" />}
           <div className="p-6">
-            <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
-            <div className="text-2xl font-bold mb-2" style={{ color: liveBlock.content?.priceColor, fontSize: liveBlock.content?.priceSize }}>{liveBlock.content?.price}</div>
-            <p className="mb-4" style={{ color: liveBlock.content?.descriptionColor, fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
-            {liveBlock.content?.buttonText && (
-              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition font-medium" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor, borderRadius: liveBlock.content?.buttonRadius }}>
-                {liveBlock.content.buttonText}
-              </a>
-            )}
+            <h3 className="text-xl font-bold mb-2 text-white">{liveBlock.content?.name || "Product Name"}</h3>
+            <p className="text-gray-300 mb-3">{liveBlock.content?.description || "Product description goes here."}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-xl font-bold text-white">{liveBlock.content?.price || "$99.99"}</span>
+              <button className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white font-medium rounded-lg transition-all duration-200">{liveBlock.content?.buttonText || "Add to Cart"}</button>
+            </div>
           </div>
         </div>
       )}
       {liveBlock.type === "teamcard" && (
-        <div className="w-full max-w-sm mx-auto text-center" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+        <div className="w-full max-w-sm mx-auto text-center bg-gray-700 border border-gray-600 rounded-xl shadow-lg" style={{ borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
           <div className="p-6">
             {liveBlock.content?.image && (
-              <img src={liveBlock.content.image} alt="" className="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />
+              <img src={liveBlock.content.image} alt="" className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-gray-600" />
             )}
-            <h3 className="font-semibold mb-1" style={{ color: liveBlock.content?.nameColor, fontSize: liveBlock.content?.nameSize }}>{liveBlock.content?.name}</h3>
-            <p className="mb-2" style={{ color: liveBlock.content?.roleColor, fontSize: liveBlock.content?.roleSize }}>{liveBlock.content?.role}</p>
-            <p className="mb-4" style={{ color: liveBlock.content?.bioColor, fontSize: liveBlock.content?.bioSize }}>{liveBlock.content?.bio}</p>
+            <h3 className="font-semibold mb-1 text-white" style={{ fontSize: liveBlock.content?.nameSize }}>{liveBlock.content?.name}</h3>
+            <p className="mb-2 text-gray-300" style={{ fontSize: liveBlock.content?.roleSize }}>{liveBlock.content?.role}</p>
+            <p className="mb-4 text-gray-400" style={{ fontSize: liveBlock.content?.bioSize }}>{liveBlock.content?.bio}</p>
             <div className="flex justify-center space-x-4">
               {(liveBlock.content?.social || []).map((social, i) => (
-                <a key={i} href={social.href} className="transition" style={{ color: liveBlock.content?.socialColor }} onMouseEnter={(e) => e.currentTarget.style.color = liveBlock.content?.socialHover} onMouseLeave={(e) => e.currentTarget.style.color = liveBlock.content?.socialColor}>
+                <a key={i} href={social.href} className="text-gray-300 hover:text-white transition-all duration-200">
                   {social.platform}
                 </a>
               ))}
@@ -423,18 +455,18 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         </div>
       )}
       {liveBlock.type === "servicecard" && (
-        <div className="w-full max-w-sm mx-auto text-center" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+        <div className="w-full max-w-sm mx-auto text-center bg-gray-700 border border-gray-600 rounded-xl shadow-lg" style={{ borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
           <div className="p-6">
-            <div className="text-4xl mb-4" style={{ fontSize: liveBlock.content?.iconSize }}>{liveBlock.content?.icon}</div>
-            <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
-            <p className="mb-4" style={{ color: liveBlock.content?.descriptionColor, fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
+            <div className="text-4xl mb-4 text-white" style={{ fontSize: liveBlock.content?.iconSize }}>{liveBlock.content?.icon}</div>
+            <h3 className="font-semibold mb-2 text-white" style={{ fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
+            <p className="mb-4 text-gray-300" style={{ fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
             <ul className="text-left mb-4 space-y-1">
               {(liveBlock.content?.features || []).map((feature, i) => (
-                <li key={i} className="text-sm" style={{ color: liveBlock.content?.descriptionColor }}>• {feature}</li>
+                <li key={i} className="text-sm text-gray-300">• {feature}</li>
               ))}
             </ul>
             {liveBlock.content?.buttonText && (
-              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition font-medium" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor, borderRadius: liveBlock.content?.buttonRadius }}>
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-500 transition-all duration-200 font-medium">
                 {liveBlock.content.buttonText}
               </a>
             )}
@@ -442,34 +474,34 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         </div>
       )}
       {liveBlock.type === "testimonialcard" && (
-        <div className="w-full max-w-md mx-auto" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+        <div className="w-full max-w-md mx-auto bg-gray-700 border border-gray-600 rounded-xl shadow-lg" style={{ borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
           <div className="p-6">
             <div className="flex items-center mb-4">
               {liveBlock.content?.image && (
-                <img src={liveBlock.content.image} alt="" className="w-12 h-12 rounded-full mr-3 object-cover" />
+                <img src={liveBlock.content.image} alt="" className="w-12 h-12 rounded-full mr-3 object-cover border border-gray-600" />
               )}
               <div>
-                <div className="font-semibold" style={{ color: liveBlock.content?.authorColor, fontSize: liveBlock.content?.authorSize }}>{liveBlock.content?.author}</div>
-                <div className="text-sm" style={{ color: liveBlock.content?.roleColor, fontSize: liveBlock.content?.roleSize }}>{liveBlock.content?.role}, {liveBlock.content?.company}</div>
+                <div className="font-semibold text-white" style={{ fontSize: liveBlock.content?.authorSize }}>{liveBlock.content?.author}</div>
+                <div className="text-sm text-gray-400" style={{ fontSize: liveBlock.content?.roleSize }}>{liveBlock.content?.role}, {liveBlock.content?.company}</div>
               </div>
             </div>
             <div className="flex mb-3">
               {[...Array(liveBlock.content?.rating || 5)].map((_, i) => (
-                <span key={i} style={{ color: liveBlock.content?.ratingColor }}>⭐</span>
+                <span key={i} className="text-yellow-500">⭐</span>
               ))}
             </div>
-            <blockquote className="italic" style={{ color: liveBlock.content?.quoteColor, fontSize: liveBlock.content?.quoteSize }}>"{liveBlock.content?.quote}"</blockquote>
+            <blockquote className="italic text-gray-300" style={{ fontSize: liveBlock.content?.quoteSize }}>"{liveBlock.content?.quote}"</blockquote>
           </div>
         </div>
       )}
       {liveBlock.type === "featurecard" && (
-        <div className="w-full max-w-sm mx-auto text-center" style={{ background: liveBlock.content?.cardBg, borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
+        <div className="w-full max-w-sm mx-auto text-center bg-gray-700 border border-gray-600 rounded-xl shadow-lg" style={{ borderRadius: liveBlock.content?.cardRadius, boxShadow: liveBlock.content?.cardShadow }}>
           <div className="p-6">
-            <div className="text-3xl mb-4" style={{ fontSize: liveBlock.content?.iconSize }}>{liveBlock.content?.icon}</div>
-            <h3 className="font-semibold mb-2" style={{ color: liveBlock.content?.titleColor, fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
-            <p className="mb-4" style={{ color: liveBlock.content?.descriptionColor, fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
+            <div className="text-3xl mb-4 text-white" style={{ fontSize: liveBlock.content?.iconSize }}>{liveBlock.content?.icon}</div>
+            <h3 className="font-semibold mb-2 text-white" style={{ fontSize: liveBlock.content?.titleSize }}>{liveBlock.content?.title}</h3>
+            <p className="mb-4 text-gray-300" style={{ fontSize: liveBlock.content?.descriptionSize }}>{liveBlock.content?.description}</p>
             {liveBlock.content?.buttonText && (
-              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded transition font-medium" style={{ background: liveBlock.content?.buttonBg, color: liveBlock.content?.buttonColor, borderRadius: liveBlock.content?.buttonRadius }}>
+              <a href={liveBlock.content?.buttonHref || "#"} className="inline-block px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-500 transition-all duration-200 font-medium">
                 {liveBlock.content.buttonText}
               </a>
             )}
@@ -477,17 +509,15 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         </div>
       )}
       {liveBlock.type === "quote" && (
-        <div className="w-full p-6 rounded" style={{ background: liveBlock.content?.background, borderLeft: liveBlock.content?.borderLeft }}>
-          <blockquote className="text-xl italic mb-2" style={{ color: liveBlock.content?.textColor, fontSize: liveBlock.content?.textSize }}>"{liveBlock.content?.text}"</blockquote>
-          <cite className="text-sm" style={{ color: liveBlock.content?.authorColor, fontSize: liveBlock.content?.authorSize }}>— {liveBlock.content?.author}</cite>
+        <div className="w-full p-6 bg-gray-700 rounded-xl border-l-4 border-gray-500 shadow-lg">
+          <blockquote className="text-xl italic mb-2 text-gray-300">"{liveBlock.content?.text}"</blockquote>
+          <cite className="text-sm text-gray-400">— {liveBlock.content?.author}</cite>
         </div>
       )}
       {liveBlock.type === "div" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 p-4 min-h-[100px] relative group"
+          className="w-full rounded-xl border border-gray-600 bg-gray-700 p-4 min-h-[100px] relative group shadow-lg"
           style={{ 
-            background: liveBlock.content?.background,
-            border: liveBlock.content?.border,
             borderRadius: liveBlock.content?.borderRadius,
             padding: liveBlock.content?.padding,
             minHeight: liveBlock.content?.minHeight,
@@ -742,7 +772,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
       )}
       {liveBlock.type === "mainnavbar" && (
         <nav 
-          className="w-full bg-white shadow-lg border-b border-gray-200"
+          className="w-full bg-gray-700 shadow-lg border-b border-gray-600"
           style={{ 
             position: liveBlock.content?.sticky ? 'sticky' : 'relative',
             top: 0,
@@ -766,7 +796,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
                     <a 
                       key={index} 
                       href={link.href} 
-                      className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-100"
+                      className="px-3 py-2 rounded-md text-sm font-medium transition"
                       style={{ color: liveBlock.content?.textColor }}
                       onMouseEnter={(e) => e.currentTarget.style.color = liveBlock.content?.linkHover}
                       onMouseLeave={(e) => e.currentTarget.style.color = liveBlock.content?.textColor}
