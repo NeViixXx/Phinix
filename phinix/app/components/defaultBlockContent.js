@@ -1,5 +1,8 @@
 // components/defaultBlockContent.js
 
+// Default width for all blocks
+export const DEFAULT_BLOCK_WIDTH = "100%";
+
 export const defaultContent = {
     // --- Text & Content ---
     heading: "This is a Heading",

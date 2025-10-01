@@ -74,7 +74,10 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
     
     // Minimum width constraint
     const minWidth = 100;
-    const constrainedWidth = Math.max(minWidth, newWidth);
+    // Maximum width constraint (100% of parent container)
+    const maxWidth = blockRef.current.parentElement.clientWidth;
+    // Always use 100% as the default and maximum width
+    const constrainedWidth = maxWidth;
     
     handleChange('width', `${constrainedWidth}px`);
   }, [isResizing, resizeDirection]);
@@ -122,7 +125,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
         style={{
           margin: bpStyle.margin ?? liveBlock.margin,
           padding: bpStyle.padding ?? liveBlock.padding,
-          width: bpStyle.width ?? (liveBlock.width || "100%"),
+          width: "100%", // Always use full width
           height: bpStyle.height ?? liveBlock.height,
           display: bpStyle.display ?? (liveBlock.display || "block"),
           justifyContent: bpStyle.justifyContent ?? liveBlock.justifyContent,
@@ -531,7 +534,7 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
           )}
           
           {liveBlock.children && liveBlock.children.length > 0 ? (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-4">
               {liveBlock.children.map((childBlock) => (
                 <CMSBlock
                   key={childBlock.id}
@@ -562,15 +565,14 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-20 border-2 border-dashed border-gray-200 rounded bg-gray-50">
+            <div className="flex items-center justify-center h-20 border-2 border-dashed border-gray-600 rounded-lg bg-gray-600/30">
               <p 
-                className="text-center text-gray-500"
+                className="text-center text-gray-300"
                 style={{ 
-                  color: liveBlock.content?.contentColor,
                   fontSize: liveBlock.content?.contentSize,
                 }}
               >
-                {liveBlock.content?.content}
+                Drop elements here
               </p>
             </div>
           )}
@@ -578,13 +580,8 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
       )}
       {liveBlock.type === "twocolumn" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 p-4 relative group"
+          className="w-full rounded-xl border border-gray-600 bg-gray-700 p-4 relative group shadow-lg"
           style={{ 
-            display: liveBlock.content?.display,
-            gridTemplateColumns: liveBlock.content?.gridTemplateColumns,
-            gap: liveBlock.content?.gap,
-            background: liveBlock.content?.background,
-            border: liveBlock.content?.border,
             borderRadius: liveBlock.content?.borderRadius,
             padding: liveBlock.content?.padding,
             minHeight: liveBlock.content?.minHeight,
@@ -598,10 +595,10 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
           )}
           
           {liveBlock.children && liveBlock.children.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               {liveBlock.children.map((childBlock, index) => (
-                <div key={childBlock.id} className="min-h-[100px] border border-gray-200 rounded bg-gray-50 p-2">
-                  <div className="text-xs text-gray-400 mb-2">Column {index + 1}</div>
+                <div key={childBlock.id} className="flex-1 min-h-[100px] border border-gray-600 rounded-lg bg-gray-600/30 p-3">
+                  {!previewMode && <div className="text-xs text-gray-400 mb-2">Column {index + 1}</div>}
                   <CMSBlock
                     block={childBlock}
                     onUpdate={(updated) => {
@@ -630,27 +627,15 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
-                <p 
-                  className="text-center text-gray-500"
-                  style={{ 
-                    color: liveBlock.content?.contentColor,
-                    fontSize: liveBlock.content?.contentSize,
-                  }}
-                >
-                  {liveBlock.content?.leftContent}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 p-4 border border-gray-600 rounded-lg bg-gray-600/30 min-h-[100px] flex items-center justify-center">
+                <p className="text-center text-gray-300">
+                  Drop content in column 1
                 </p>
               </div>
-              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
-                <p 
-                  className="text-center text-gray-500"
-                  style={{ 
-                    color: liveBlock.content?.contentColor,
-                    fontSize: liveBlock.content?.contentSize,
-                  }}
-                >
-                  {liveBlock.content?.rightContent}
+              <div className="flex-1 p-4 border border-gray-600 rounded-lg bg-gray-600/30 min-h-[100px] flex items-center justify-center">
+                <p className="text-center text-gray-300">
+                  Drop content in column 2
                 </p>
               </div>
             </div>
@@ -659,13 +644,8 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
       )}
       {liveBlock.type === "threecolumn" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 p-4 relative group"
+          className="w-full rounded-xl border border-gray-600 bg-gray-700 p-4 relative group shadow-lg"
           style={{ 
-            display: liveBlock.content?.display,
-            gridTemplateColumns: liveBlock.content?.gridTemplateColumns,
-            gap: liveBlock.content?.gap,
-            background: liveBlock.content?.background,
-            border: liveBlock.content?.border,
             borderRadius: liveBlock.content?.borderRadius,
             padding: liveBlock.content?.padding,
             minHeight: liveBlock.content?.minHeight,
@@ -679,10 +659,10 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
           )}
           
           {liveBlock.children && liveBlock.children.length > 0 ? (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               {liveBlock.children.map((childBlock, index) => (
-                <div key={childBlock.id} className="min-h-[100px] border border-gray-200 rounded bg-gray-50 p-2">
-                  <div className="text-xs text-gray-400 mb-2">Column {index + 1}</div>
+                <div key={childBlock.id} className="flex-1 min-h-[100px] border border-gray-600 rounded-lg bg-gray-600/30 p-3">
+                  {!previewMode && <div className="text-xs text-gray-400 mb-2">Column {index + 1}</div>}
                   <CMSBlock
                     block={childBlock}
                     onUpdate={(updated) => {
@@ -711,38 +691,20 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
-                <p 
-                  className="text-center text-gray-500"
-                  style={{ 
-                    color: liveBlock.content?.contentColor,
-                    fontSize: liveBlock.content?.contentSize,
-                  }}
-                >
-                  {liveBlock.content?.leftContent}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 p-4 border border-gray-600 rounded-lg bg-gray-600/30 min-h-[100px] flex items-center justify-center">
+                <p className="text-center text-gray-300">
+                  Drop content in column 1
                 </p>
               </div>
-              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
-                <p 
-                  className="text-center text-gray-500"
-                  style={{ 
-                    color: liveBlock.content?.contentColor,
-                    fontSize: liveBlock.content?.contentSize,
-                  }}
-                >
-                  {liveBlock.content?.centerContent}
+              <div className="flex-1 p-4 border border-gray-600 rounded-lg bg-gray-600/30 min-h-[100px] flex items-center justify-center">
+                <p className="text-center text-gray-300">
+                  Drop content in column 2
                 </p>
               </div>
-              <div className="p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px] flex items-center justify-center">
-                <p 
-                  className="text-center text-gray-500"
-                  style={{ 
-                    color: liveBlock.content?.contentColor,
-                    fontSize: liveBlock.content?.contentSize,
-                  }}
-                >
-                  {liveBlock.content?.rightContent}
+              <div className="flex-1 p-4 border border-gray-600 rounded-lg bg-gray-600/30 min-h-[100px] flex items-center justify-center">
+                <p className="text-center text-gray-300">
+                  Drop content in column 3
                 </p>
               </div>
             </div>
@@ -751,22 +713,16 @@ export default function CMSBlock({ block, onUpdate, onDelete, onDuplicate, onSel
       )}
       {liveBlock.type === "spacer" && (
         <div 
-          className="w-full rounded border-2 border-dashed border-gray-300 flex items-center justify-center"
+          className="w-full rounded-lg border border-gray-600 bg-gray-700/30 flex items-center justify-center"
           style={{ 
             height: liveBlock.content?.height,
-            background: liveBlock.content?.background,
-            border: liveBlock.content?.border,
             borderRadius: liveBlock.content?.borderRadius,
           }}
         >
           <span 
             className="text-gray-400 text-xs"
-            style={{ 
-              color: liveBlock.content?.contentColor,
-              fontSize: liveBlock.content?.contentSize,
-            }}
           >
-            {liveBlock.content?.content}
+            {!previewMode ? "Spacer" : ""}
           </span>
         </div>
       )}

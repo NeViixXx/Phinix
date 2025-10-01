@@ -84,7 +84,7 @@ function DroppableCanvas({ children, hasInspector, viewport, dragIndicator }) {
       )}
       
       {/* Canvas Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col w-full">
         {children}
       </div>
     </div>
@@ -355,8 +355,9 @@ export default function Canvas() {
       };
 
       setBlocks((prev) => {
-        // Check if dropping into a container div
+        // Check if dropping into a container div or column
         if (over && over.id !== "canvas") {
+          // Check if dropping into a container
           const targetBlock = prev.find(b => b.id === over.id);
           if (targetBlock && ['div', 'twocolumn', 'threecolumn'].includes(targetBlock.type)) {
             // Add to container's children
@@ -370,6 +371,49 @@ export default function Canvas() {
               return block;
             });
             return updatedBlocks;
+          }
+          
+          // Check if dropping into a specific column
+          const columnMatch = over.id.match(/^(.+)-col-(\d+)$/);
+          if (columnMatch) {
+            const containerId = columnMatch[1];
+            const columnIndex = parseInt(columnMatch[2]);
+            
+            // Find the container block
+            const containerBlock = prev.find(b => b.id === containerId);
+            if (containerBlock && ['twocolumn', 'threecolumn'].includes(containerBlock.type)) {
+              // Add to the specific column
+              const updatedBlocks = prev.map(block => {
+                if (block.id === containerId) {
+                  // For two/three column layouts, we need to insert at the right position
+                  const children = [...(block.children || [])];
+                  
+                  // Insert at the appropriate position based on column index
+                  if (containerBlock.type === 'twocolumn') {
+                    // For two columns: even indices for column 0, odd indices for column 1
+                    const positionsForColumn = children
+                      .map((child, i) => ({ child, i }))
+                      .filter((_, i) => i % 2 === columnIndex);
+                    
+                    const insertIndex = positionsForColumn.length > 0 
+                      ? positionsForColumn[positionsForColumn.length - 1].i + 1 
+                      : columnIndex;
+                    
+                    children.splice(insertIndex, 0, newBlock);
+                  } else if (containerBlock.type === 'threecolumn') {
+                    // For three columns: we need to maintain the order
+                    children.push(newBlock);
+                  }
+                  
+                  return {
+                    ...block,
+                    children
+                  };
+                }
+                return block;
+              });
+              return updatedBlocks;
+            }
           }
         }
 
